@@ -13,7 +13,7 @@ export function addCommaToNumber(num: number | null): string {
   return str;
 }
 
-export function yearToYearAndMonth(years: number | null): string {
+export function yearToYearAndMonth(years: number | null, returnArray?: boolean): string | Array<string> {
   if (years == null) return '';
   const wholeYears = Math.floor(years);
   const months = Math.round((years - wholeYears) * 12);
@@ -23,5 +23,11 @@ export function yearToYearAndMonth(years: number | null): string {
 
   if (wholeYears === 0) return `${months} ${monthLabel}`;
   if (months === 0) return `${wholeYears} ${yearLabel}`;
-  return `${wholeYears} ${yearLabel}, ${months} ${monthLabel}`;
+
+  if (returnArray) {
+    return [`${wholeYears} ${yearLabel}`, `${months} ${monthLabel}`]
+  } else {
+    return `${wholeYears} ${yearLabel}, ${months} ${monthLabel}`;
+  }
+
 }

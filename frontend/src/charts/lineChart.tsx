@@ -10,9 +10,10 @@ import {
   Tooltip,
   Legend,
   Filler,
+  BubbleController
 } from "chart.js";
 import annotationPlugin, { LabelPosition } from 'chartjs-plugin-annotation';
-
+import { yearToYearAndMonth } from "../utility/UtilityFunctions";
 
 // Register Chart.js components
 Chart.register(
@@ -25,13 +26,12 @@ Chart.register(
   Legend,
   CategoryScale,
   Filler,
-  annotationPlugin
+  annotationPlugin,
+  BubbleController
 );
 import { useBenchmarkContext } from "../utility/BenchmarkContext";
 
-type LineChartProps = {
-  // Define any props if necessary, or leave as an empty object
-};
+const BREAK_EVEN_TEXT = "Break-Even point";
 
 // line intercept math by Paul Bourke http://paulbourke.net/geometry/pointlineplane/
 // Determine the intersection point of two line segments
@@ -69,7 +69,7 @@ export function lineIntersect(
   return {x, y}
 }
 
-const LineChart: React.FC<LineChartProps> = memo(function LineChart() {
+const LineChart: React.FC<{}> = memo(function LineChart() {
 
   const { workload, country, utilization, comparison, intersect, currentCPU, newCPU, oldSystemOpex, newSystemOpex, breakEven, singleComparison } = useBenchmarkContext();
 
@@ -86,6 +86,8 @@ const LineChart: React.FC<LineChartProps> = memo(function LineChart() {
       fill: false,
       backgroundColor: "#B4D8E7",
       pointRadius: 0,
+      yAxisID: 'y',
+      order: 2
     },
   ];
 
@@ -99,6 +101,8 @@ const LineChart: React.FC<LineChartProps> = memo(function LineChart() {
       fill: false,
       backgroundColor: "#F1B16E",
       pointRadius: 0,
+      yAxisID: 'y',
+      order: 2
     })
   }
 
@@ -118,8 +122,8 @@ const LineChart: React.FC<LineChartProps> = memo(function LineChart() {
   const yBreakEven = intersect ? intersect.y : 0;
 
   // trying my best to not let labels overlap or go out of bounds
-  if ((xBreakEven / L) > 0.1) xbreakEvenLabel = 'end';
-  if ((yBreakEven / oldSystemOpex[L]) > 0.95) ybreakEvenLabel = 'start';
+  if ((xBreakEven / L) > 0.15) xbreakEvenLabel = 'end';
+  if ((yBreakEven / oldSystemOpex[L]) > 0.90) ybreakEvenLabel = 'start';
 
   const isBreakEvenUpperRight = xBreakEven / L > 0.6 && yBreakEven / oldSystemOpex[L] > 0.6;
   const isEmbodiedUpperRight = embodiedCarbonLineHeight / oldSystemOpex[L] > 0.6;
@@ -133,6 +137,34 @@ const LineChart: React.FC<LineChartProps> = memo(function LineChart() {
     labels: labels,
     datasets: datasets,
   };
+
+  const labelXValue = intersect ? intersect.x : 1;
+  const labelYValue = intersect ? intersect.y : (0.8 * newSystemOpex[2]);
+
+  // if there is no intersect, we want 'No Break-Even' to be in the center
+  if (!intersect) {
+    xbreakEvenLabel = 'end';
+    ybreakEvenLabel = 'center';
+  }
+
+  if (intersect) {
+    datasets.push({
+      type: "bubble",
+      label: BREAK_EVEN_TEXT,
+      data: [{
+        x: intersect ? intersect.x : -10,
+        y: intersect ? intersect.y : -10,
+        r: 6,
+      }],
+      borderColor: "black",
+      fill: false,
+      backgroundColor: "red",
+      pointRadius: 0,
+      yAxisID: 'y',
+      xAxisID: 'x1',
+      order: 1
+    })
+  }
 
   useEffect(() => {
     if (!canvas.current) return;
@@ -151,6 +183,7 @@ const LineChart: React.FC<LineChartProps> = memo(function LineChart() {
         },
         scales: {
           x: {
+            beginAtZero: true,
             title: {
               display: true,
               text: "Duration [Years]",
@@ -162,11 +195,18 @@ const LineChart: React.FC<LineChartProps> = memo(function LineChart() {
               },
             },
             ticks: {
+              autoSkip: true,
               font: {
                 family: "serif",
                 size: 14,
               },
             },
+          },
+          x1: {
+            type: 'linear',
+            beginAtZero: true,
+            display: false,
+            max: oldSystemOpex.length - 1
           },
           y: {
             title: {
@@ -191,6 +231,14 @@ const LineChart: React.FC<LineChartProps> = memo(function LineChart() {
           },
         },
         plugins: {
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                console.log(context)
+                return "Break-Even Point"
+              }
+            }
+          },
           annotation: {
             annotations: {
               embodiedCarbonLine: {
@@ -200,6 +248,7 @@ const LineChart: React.FC<LineChartProps> = memo(function LineChart() {
                 borderColor: "rgb(255, 99, 132)",
                 borderWidth: 2,
                 borderDash: [6, 6],
+                drawTime: 'beforeDraw',
                 label: {
                   display: true,
                   backgroundColor: "hsla(0, 100%, 50%, 0)",
@@ -214,21 +263,13 @@ const LineChart: React.FC<LineChartProps> = memo(function LineChart() {
                   position: embodiedCarbonLinePosition
                 },
               },
-              breakEvenCircle: {
-                display: !!intersect,
-                type: "point",
-                backgroundColor: "red",
-                pointStyle: "round",
-                radius: 5,
-                xValue: intersect ? intersect.x : -10,
-                yValue: intersect ? intersect.y : -10,
-              },
               breakEvenLabel: {
-                display: !!intersect,
+                display: true,
                 type: "label",
                 backgroundColor: 'transparent',
-                content: intersect ? `${intersect.x.toFixed(1)} years` : "",
+                content: intersect ? yearToYearAndMonth(Number(intersect.x.toFixed(1)), true) : ['No Break-Even', 'Power Consumption Ratio', 'exceeds Performance Ratio'],
                 color: "red",
+                z: -1,
                 font: {
                   family: "serif",
                   size: 18,
@@ -246,13 +287,17 @@ const LineChart: React.FC<LineChartProps> = memo(function LineChart() {
                   x: xbreakEvenLabel,
                   y: ybreakEvenLabel,
                 },
-                xValue: intersect ? intersect.x : 0,
-                yValue: intersect ? intersect.y : 0,
+                xValue: labelXValue,
+                yValue: labelYValue
               },
             },
           },
           legend: {
             labels: {
+              filter: function(item) {
+                return !item.text.includes(BREAK_EVEN_TEXT);
+              },
+
               color: "black",
               font: {
                 family: "serif",
@@ -279,7 +324,7 @@ const LineChart: React.FC<LineChartProps> = memo(function LineChart() {
         <canvas ref={canvas} width={400} height={500}></canvas>
       </figure>
       <p className="text-center text-sm w-full mx-auto font-serif text-slate-700">
-        Figure: Projected CO2 accumulated emissions of current (blue) and new (orange) hardware for a {workload} workload, {utilization}% utilization with energy sourced from <span className="capitalize">{country}</span>.
+        Projected CO2 accumulated emissions of current (blue) and new (orange) hardware for a {workload} workload, {utilization}% utilization with energy sourced from <span className="capitalize">{country}</span>.
       </p>
     </div>
   );

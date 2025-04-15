@@ -7,6 +7,7 @@ import chroma from "chroma-js";
 import { Country, GRID_INTENSITY } from "../assets/grid_intensities.ts";
 //@ts-ignore
 import { test } from "../assets/countries.js";
+import { BLANK_SPACE } from "../utility/UtilityFunctions.ts";
 
 // current min max: 22, 814
 // const arr = Object.values(GRID_INTENSITY).filter((x): x is number => x !== null)
@@ -148,24 +149,35 @@ const GeoMap: React.FC<GeomapProps> = ({ country, setCountry }) => {
   }
 
   return (
-    <div className="w-full h-96 flex flex-col overflow-hidden rounded-lg border border-slate-500">
-      <MapContainer
-        center={[30, 0]}
-        zoom={2}
-        worldCopyJump={true}
-        style={{ height: "100%", width: "100%" }}
-        scrollWheelZoom={true}
-        minZoom={2}
-        ref={mapRef}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png"
-        />
-        {/* @tsignore */}
-        <GeoJSON data={test.features} onEachFeature={onEachFeature} style={style} />
-      </MapContainer>
-    </div>
+    <>
+      <div className="w-full h-96 flex flex-col overflow-hidden rounded-lg border border-slate-500">
+        <MapContainer
+          center={[30, 0]}
+          zoom={2}
+          worldCopyJump={true}
+          style={{ height: "100%", width: "100%" }}
+          scrollWheelZoom={true}
+          minZoom={2}
+          ref={mapRef}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png"
+          />
+          {/* @tsignore */}
+          <GeoJSON data={test.features} onEachFeature={onEachFeature} style={style} />
+        </MapContainer>
+      </div>
+      <p className="text-sm font-light text-right">
+        Source:{BLANK_SPACE}
+        <a
+          className="text-cyan-700 hover:underline duration-300"
+          href="https://www.electricitymaps.com/"
+        >
+          Electricity Maps
+        </a>
+      </p>
+    </>
   );
 };
 
