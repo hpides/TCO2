@@ -1,6 +1,6 @@
 import React from "react";
 import { useBenchmarkContext } from "../utility/BenchmarkContext";
-import { addCommaToNumber, yearToYearAndMonth, BLANK_SPACE } from "../utility/UtilityFunctions";
+import { addCommaToNumber, yearToYearAndMonth, BLANK_SPACE, withinXPercent } from "../utility/UtilityFunctions";
 import CPU_DATA, { CPU_METRICS, CPUMetric } from "../assets/data";
 import { GRID_INTENSITY } from "../assets/grid_intensities";
 import { CapexType, OpexType, CPU, RAM, SSD, HDD, Components } from "../utility/lifecycle_analysis/system";
@@ -134,8 +134,13 @@ function DetailedBreakdown() {
 
   const titleText = singleComparison ? 'Current' : 'New'
 
-  const perfRatio = (newPerformanceIndicator / oldPerformanceIndicator).toFixed(3).replace(/\.000$/, '');
-  const consumptionRatio = (newPowerConsumption / oldPowerConsumption).toFixed(3).replace(/\.000$/, '');
+  let perfRatio :any = (newPerformanceIndicator / oldPerformanceIndicator)
+  let consumptionRatio :any = (newPowerConsumption / oldPowerConsumption)
+
+  const ratioDecimalPlaces = withinXPercent(perfRatio, consumptionRatio, 0.1) ? 3 : 1;
+  perfRatio = perfRatio.toFixed(ratioDecimalPlaces).replace(/\.000$/, '');
+  consumptionRatio = consumptionRatio.toFixed(ratioDecimalPlaces).replace(/\.000$/, '');
+
   let oldPerfFormatted = oldPerformanceIndicator.toFixed(1).replace(/\.0$/, '');
   let newPerfFormatted = newPerformanceIndicator.toFixed(1).replace(/\.0$/, '');
   let oldConsumptionFormatted = oldPowerConsumption.toFixed(3).replace(/\.0$/, '');

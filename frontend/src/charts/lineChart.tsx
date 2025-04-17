@@ -143,7 +143,7 @@ const LineChart: React.FC<{}> = memo(function LineChart() {
 
   // if there is no intersect, we want 'No Break-Even' to be in the center
   if (!intersect) {
-    xbreakEvenLabel = 'end';
+    xbreakEvenLabel = 'center';
     ybreakEvenLabel = 'center';
   }
 
@@ -211,7 +211,7 @@ const LineChart: React.FC<{}> = memo(function LineChart() {
           y: {
             title: {
               display: true,
-              text: "Accumulated CO₂ [ton]",
+              text: "Accumulated CO₂ [Tons]",
               color: 'black',
               font: {
                 family: "serif",
@@ -266,7 +266,7 @@ const LineChart: React.FC<{}> = memo(function LineChart() {
               breakEvenLabel: {
                 display: true,
                 type: "label",
-                backgroundColor: 'transparent',
+                backgroundColor: intersect ? 'transparent' : 'white',
                 content: intersect ? yearToYearAndMonth(Number(intersect.x.toFixed(1)), true) : ['No Break-Even', 'Power Consumption Ratio', 'exceeds Performance Ratio'],
                 color: "red",
                 z: -1,
@@ -275,8 +275,9 @@ const LineChart: React.FC<{}> = memo(function LineChart() {
                   size: 18,
                   weight: 400,
                 },
-                borderRadius: 100,
-                borderColor: 'black',
+                borderWidth: intersect ? 0 : 1,
+                borderRadius: intersect ? 100 : 0,
+                borderColor: intersect ? 'black' : 'red',
                 padding: {
                   top: 5,
                   bottom: 5,

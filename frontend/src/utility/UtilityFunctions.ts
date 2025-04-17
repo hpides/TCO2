@@ -31,3 +31,10 @@ export function yearToYearAndMonth(years: number | null, returnArray?: boolean):
   }
 
 }
+
+// x being percent in decimal form
+export function withinXPercent(a: number, b:number, x:number) {
+  const diff = Math.abs(a - b);
+  const avg = (a + b) / 2;
+  return (diff / avg) <= x;
+}

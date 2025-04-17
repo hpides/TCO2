@@ -6,6 +6,7 @@ const EXTRA_DEFAULT = "Custom";
 interface ToggleSelectionProps<T> {
   label: string;
   options: Array<T>;
+  optionsTooltip?: Array<String>;
   currentState: T;
   capitalize?: boolean;
   extraInput?: boolean;
@@ -18,6 +19,7 @@ interface ToggleSelectionProps<T> {
 const ToggleSelection = <T,>({ 
   label,
   options,
+  optionsTooltip = [],
   setState,
   currentState,
   capitalize = false,
@@ -28,6 +30,10 @@ const ToggleSelection = <T,>({
 }: ToggleSelectionProps<T>) => {
 
   const [extra, setExtra] = useState(EXTRA_DEFAULT);
+
+  // TODO: implementation:
+  // https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/data-*
+  const hasTooltip = optionsTooltip.length > 0;
 
   const extraFocus = (value: any, initial: boolean = false) => {
     setExtra((initial && value == EXTRA_DEFAULT) ? "" : value);
@@ -62,19 +68,20 @@ const ToggleSelection = <T,>({
   return (
     <div className="flex items-center flex-wrap w-full gap-2">
       <p className={`${flexGrow ? 'font-mono text-sm ' : ''} border-b-4 border-transparent`}>{label}</p>
-      {options.map((option) => (
+      {options.map((option, index) => (
         <button
           key={String(option)}
           onFocus={() => setState(option)}
           disabled={disabled.includes(option)}
+          data-tooltip={hasTooltip ? optionsTooltip[index] : null}
           className={`border-b-4 duration-150 
 ${flexGrow ? 'flex-1' : 'px-4'}
-${currentState === option ? `${border} font-bold` : `border-b-transparent font-normal hover:font-medium opacity-85 ${borderHover}`} 
-${capitalize ? " capitalize" : ""} 
+${currentState === option ? `${border} font-bold` : `border-b-transparent font-normal hover:font-medium opacity-85 ${borderHover}`}
+${capitalize ? " capitalize" : ""}
 ${disabled.includes(option) ? "cursor-not-allowed text-gray-300 hover:border-b-transparent" : "cursor-pointer"}
 `}
         >
-            {String(option)}
+          {String(option)}
         </button>
       ))}
       { extraInput &&
