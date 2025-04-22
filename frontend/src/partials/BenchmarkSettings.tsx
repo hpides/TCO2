@@ -7,7 +7,7 @@ import GeoMap from "../partials/GeoMap";
 export type WorkloadType = 'SPECrate' | 'SPECspeed' | 'Sorting' | 'TPC-H';
 
 export const WORKLOAD_TYPES: WorkloadType[] = ['SPECrate', 'SPECspeed', 'Sorting', 'TPC-H'];
-export const WORKLOAD_EXPLANATIONS: String[] = [
+export const WORKLOAD_EXPLANATIONS: string[] = [
   'Measures multi-threaded performance, simulating environments such as databases and web servers',
   'Evaluates single-threaded performance for general purpose tasks such as data compression and text processing',
   'A common yet computationally challenging task that is difficult to fully parallelize. A vector of four billion random integer values (uint32_t, 16GB) is generated, then the time to sort the entire vector is measured',
@@ -76,12 +76,14 @@ function BenchmarkSettings() {
 
 
   return (
-    <div className="flex flex-col text-medium font-medium flex-wrap px-4 py-2 gap-2">
+    <div className="flex z-30 flex-col text-medium font-medium flex-wrap px-4 py-2 gap-2">
       <ToggleSelection<WorkloadType>
         label="Workload:"
         options={WORKLOAD_TYPES}
+        optionsTooltip={WORKLOAD_EXPLANATIONS}
         currentState={workload}
         setState={setWorkload}
+        zIndex="z-30"
         disabled={disabledWorkload}
         flexGrow={false}
       />

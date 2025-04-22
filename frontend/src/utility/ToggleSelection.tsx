@@ -1,18 +1,20 @@
 import { useState } from "react";
 import edit from "../assets/edit.png";
+import Tooltip from "./Tooltip";
 
 const EXTRA_DEFAULT = "Custom";
 
 interface ToggleSelectionProps<T> {
   label: string;
   options: Array<T>;
-  optionsTooltip?: Array<String>;
+  optionsTooltip?: Array<string>;
   currentState: T;
   capitalize?: boolean;
   extraInput?: boolean;
   flexGrow?: boolean;
   disabled?: Array<T>;
   color?: 'New' | 'Current' | 'None';
+  zIndex?: string; // I cannot find another workaround...remove this and see tooltip interaction
   setState: (value: T) => void;
 }
 
@@ -26,6 +28,7 @@ const ToggleSelection = <T,>({
   extraInput = false,
   flexGrow = false,
   disabled = [],
+  zIndex = '',
   color = 'None'
 }: ToggleSelectionProps<T>) => {
 
@@ -73,15 +76,16 @@ const ToggleSelection = <T,>({
           key={String(option)}
           onFocus={() => setState(option)}
           disabled={disabled.includes(option)}
-          data-tooltip={hasTooltip ? optionsTooltip[index] : null}
-          className={`border-b-4 duration-150 
+          className={`border-b-4 duration-150 ${zIndex}
 ${flexGrow ? 'flex-1' : 'px-4'}
-${currentState === option ? `${border} font-bold` : `border-b-transparent font-normal hover:font-medium opacity-85 ${borderHover}`}
+${currentState === option ? `${border} font-bold` : `border-b-transparent font-normal hover:font-medium ${borderHover}`}
 ${capitalize ? " capitalize" : ""}
 ${disabled.includes(option) ? "cursor-not-allowed text-gray-300 hover:border-b-transparent" : "cursor-pointer"}
 `}
         >
-          {String(option)}
+          <Tooltip hasTooltip={hasTooltip} tooltipText={hasTooltip ? optionsTooltip[index] : ''}>
+            {String(option)}
+          </Tooltip>
         </button>
       ))}
       { extraInput &&

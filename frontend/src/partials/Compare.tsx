@@ -90,7 +90,7 @@ const Dropdown: React.FC<DropdownProps> = ({ label, thisConfig, otherConfig }) =
 
 
   return (
-    <div className="col-span-1 flex flex-col gap-2 font-light relative">
+    <div className="col-span-1 z-10 flex flex-col gap-2 font-light relative">
       <div
         onClick={toggleShow}
         className={`${showDropdown ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'} z-10 cursor-pointer duration-150 absolute top-0 left-0 w-full h-full bg-white border-3 border-slate-400 rounded-xl flex items-center justify-center group hover:border-slate-300`}>
