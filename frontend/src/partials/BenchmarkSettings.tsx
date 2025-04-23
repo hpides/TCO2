@@ -110,7 +110,7 @@ function BenchmarkSettings() {
             currentState={scaling}
             setState={setScaling}
             zIndex="z-30"
-            disabled={[]}
+            disabled={['Strong Scaling']}
             flexGrow={false}
           />
           <div className="flex gap-2 items-center">

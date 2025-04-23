@@ -1,8 +1,7 @@
 import React from "react";
 import { useBenchmarkContext } from "../utility/BenchmarkContext";
 import { addCommaToNumber, yearToYearAndMonth, BLANK_SPACE, withinXPercent } from "../utility/UtilityFunctions";
-import CPU_DATA, { CPU_METRICS, CPUMetric } from "../assets/data";
-import { GRID_INTENSITY } from "../assets/grid_intensities";
+import CPU_DATA, { CPUMetric, CPU_METRICS } from "../assets/data";
 import { CapexType, OpexType, CPU, RAM, SSD, HDD, Components } from "../utility/lifecycle_analysis/system";
 
 // Reusable ListItem Component
@@ -266,7 +265,6 @@ function DetailedBreakdown() {
       </div>
       <div>
         <table hidden={true} className="text-center w-7/8 mx-auto border-collapse text-base">
-          {/* 
           <thead>
             <tr>
               <th className="w-1/5"></th>
@@ -297,6 +295,7 @@ function DetailedBreakdown() {
               )
             })}
           </tbody>
+          {/* 
           <tbody>
             <tr>
               <TableHeader>Manufacturing Footprint</TableHeader>
