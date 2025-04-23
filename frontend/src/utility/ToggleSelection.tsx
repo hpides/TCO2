@@ -28,14 +28,12 @@ const ToggleSelection = <T,>({
   extraInput = false,
   flexGrow = false,
   disabled = [],
-  zIndex = '',
+  zIndex = '', // FIX: Horrible implementation but don't want to waste time on a z-index
   color = 'None'
 }: ToggleSelectionProps<T>) => {
 
   const [extra, setExtra] = useState(EXTRA_DEFAULT);
 
-  // TODO: implementation:
-  // https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/data-*
   const hasTooltip = optionsTooltip.length > 0;
 
   const extraFocus = (value: any, initial: boolean = false) => {

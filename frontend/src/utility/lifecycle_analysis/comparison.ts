@@ -20,7 +20,8 @@ export function generateSystemsComparison(
   oldSystem: System,
   timeHorizon: number,
   country: Country,
-  utilization: number,
+  oldSystemUtilization: number,
+  newSystemUtilization: number,
   opexCalculation: string
 ): ComparisonType {
   // Generate OPEX and CAPEX for the new system
@@ -30,7 +31,7 @@ export function generateSystemsComparison(
   const newSystemEmissions = newSystem.generateAccumProjectedOpexEmissions( timeHorizon,
     NEW_SYSTEM,
     country,
-    utilization,
+    newSystemUtilization,
     opexCalculation
   );
   let newSystemOpex = newSystemEmissions.projected
@@ -44,7 +45,7 @@ export function generateSystemsComparison(
     timeHorizon,
     OLD_SYSTEM,
     country,
-    utilization,
+    oldSystemUtilization,
     opexCalculation
   );
 

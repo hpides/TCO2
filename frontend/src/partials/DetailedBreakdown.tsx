@@ -12,9 +12,9 @@ interface ListItemProps {
   borderColor: string;
 }
 
-const ListItem: React.FC<ListItemProps> = ({ label, value, borderColor }) => {
+export const ListItem: React.FC<ListItemProps> = ({ label, value, borderColor }) => {
   return (
-    <li className={`border-[3px] ${borderColor} rounded-lg flex flex-col items-start justify-start px-3 py-2 duration-200 ease-in-out`}>
+    <li style={{borderColor: borderColor }} className={`border-[3px] rounded-lg flex flex-col items-start justify-start px-3 py-2 duration-200 ease-in-out`}>
       <p className="text-base font-semibold flex flex-col text-wrap">
         {label}
       </p>
@@ -123,10 +123,9 @@ const BreakdownCard: React.FC<BreakdownCardProp> = ({ title, breakdown, borderCo
 };
 
 function DetailedBreakdown() {
-  const { currentCPU, newCPU, comparison, country, intersect, workload, singleComparison, oldPerformanceIndicator, newPerformanceIndicator, capexBreakdown, opexBreakdown, oldPowerConsumption, newPowerConsumption } = useBenchmarkContext();
+  const { currentCPU, newCPU, comparison, intersect, workload, singleComparison, oldPerformanceIndicator, newPerformanceIndicator, capexBreakdown, opexBreakdown, oldPowerConsumption, newPowerConsumption } = useBenchmarkContext();
 
   const year = intersect ? yearToYearAndMonth(Number(intersect.x.toFixed(1))) : "No Break-Even";
-  const intensity = GRID_INTENSITY[country]
   const total = intersect ? addCommaToNumber(Number(intersect.y.toFixed(1))) + " kgCO₂" : "No Break-even";
   const currentData = CPU_DATA[currentCPU];
   const newData = CPU_DATA[newCPU];
@@ -158,22 +157,17 @@ function DetailedBreakdown() {
             <ListItem
               label="Break-Even Time"
               value={`${year}`}
-              borderColor="border-hpi-red"
-            />
-            <ListItem
-              label="Grid Carbon Intensity"
-              value={`${addCommaToNumber(intensity)} gCO₂/kWh`}
-              borderColor="border-hpi-red"
+              borderColor="var(--color-hpi-red)"
             />
             <ListItem
               label={`Embodied Carbon of ${titleText} Hardware`}
               value={`${addCommaToNumber(embodiedCarbon)} kgCO₂`}
-              borderColor={singleComparison ? "border-hpi-current" : "border-hpi-new"}
+              borderColor={singleComparison ? "var(--color-hpi-current)" : "var(--color-hpi-new)"}
             />
             <ListItem
               label="Total CO₂ until Break-Even"
               value={`${total}`}
-              borderColor="border-hpi-orange"
+              borderColor="var(--color-hpi-orange)"
             />
           </ul>
           <div className="flex flex-col border-[3px] border-hpi-orange rounded-lg px-1 py-1 col-span-5">
@@ -272,6 +266,7 @@ function DetailedBreakdown() {
       </div>
       <div>
         <table hidden={true} className="text-center w-7/8 mx-auto border-collapse text-base">
+          {/* 
           <thead>
             <tr>
               <th className="w-1/5"></th>
@@ -302,7 +297,6 @@ function DetailedBreakdown() {
               )
             })}
           </tbody>
-          {/* 
           <tbody>
             <tr>
               <TableHeader>Manufacturing Footprint</TableHeader>

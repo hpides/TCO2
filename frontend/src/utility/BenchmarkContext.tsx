@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, ReactNode } from 'react';
-import { WorkloadType, WORKLOAD_TYPES, WORKLOAD_MAPPING } from '../partials/BenchmarkSettings';
+import { WorkloadType, WORKLOAD_TYPES, WORKLOAD_MAPPING, ScalingType, SCALING_TYPES } from '../partials/BenchmarkSettings';
 import { Country } from '../assets/grid_intensities';
 import { CPU_LIST, HDD_CAPACITIES } from '../partials/Compare';
 import { CapexType, OpexType, System } from './lifecycle_analysis/system';
@@ -30,6 +30,7 @@ interface BenchmarkContextType {
   newSSD: number;
   newHDD: number;
   workload: WorkloadType;
+  scaling: ScalingType;
   utilization: number;
   country: Country;
   comparison: ComparisonType;
@@ -53,6 +54,7 @@ interface BenchmarkContextType {
   setNewSSD: (value: number) => void;
   setNewHDD: (value: number) => void;
   setWorkload: (value: WorkloadType) => void;
+  setScaling: (value: ScalingType) => void;
   setUtilization: (value: number) => void;
   setCountry: (value: Country) => void;
   setSingleComparison: (value: boolean) => void;
@@ -75,17 +77,27 @@ export const BenchmarkProvider: React.FC<BenchmarkProviderProps> = ({ children }
   const [newSSD, setNewSSD] = useState<number>(SSD_CAPACITIES[0]);
   const [newHDD, setNewHDD] = useState<number>(HDD_CAPACITIES[0]);
 
+  const [singleComparison, setSingleComparison] = useState<boolean>(currentCPU === newCPU);
+
   // Settings section
   const [workload, setWorkload] = useState<WorkloadType>(WORKLOAD_TYPES[0]);
+  const [scaling, setScaling] = useState<ScalingType>(SCALING_TYPES[0]);
   const [utilization, setUtilization] = useState<number>(40);
   const [country, setCountry] = useState<Country>(FIRST_COUNTRY);
 
-  const [singleComparison, setSingleComparison] = useState<boolean>(true);
+  const oldDieSize = CPU_DATA[currentCPU].DIE_SIZE;
+  const newDieSize = CPU_DATA[newCPU].DIE_SIZE;
 
   const oldPerformanceIndicator = CPU_DATA[currentCPU][WORKLOAD_MAPPING[workload]] || 0;
   const newPerformanceIndicator = CPU_DATA[newCPU][WORKLOAD_MAPPING[workload]] || 0;
-  const oldDieSize = CPU_DATA[currentCPU].DIE_SIZE;
-  const newDieSize = CPU_DATA[newCPU].DIE_SIZE;
+
+  let utilizationScalingFactor = 1;
+
+  if (scaling == 'Weak Scaling') {
+    utilizationScalingFactor = oldPerformanceIndicator / newPerformanceIndicator
+  }
+
+  const newUtilization = Math.min(100, utilization * utilizationScalingFactor)
 
   // Old System
   const oldSystem = new System(
@@ -114,7 +126,8 @@ export const BenchmarkProvider: React.FC<BenchmarkProviderProps> = ({ children }
     oldSystem, // old system object
     timeHorizon, // time horizon
     country, // country string
-    utilization, // utilization percentage
+    utilization, // old system utilization percentage
+    newUtilization, // new system utilization percentage
     GUPTA_MODEL // OPEX calculation model
   );
 
@@ -154,7 +167,7 @@ export const BenchmarkProvider: React.FC<BenchmarkProviderProps> = ({ children }
   const newPowerConsumption = comparison.newPowerConsumption;
 
   return (
-    <BenchmarkContext.Provider value={{ oldPowerConsumption, newPowerConsumption, opexBreakdown, capexBreakdown, setSingleComparison, oldPerformanceIndicator, newPerformanceIndicator, comparison, oldSystemOpex, singleComparison, newSystemOpex, intersect, breakEven, workload, utilization, country, setWorkload, setUtilization, setCountry, currentCPU, setCurrentCPU, newCPU, setNewCPU, currentRAM, currentSSD, newRAM, newSSD, setNewRAM, setNewSSD, setCurrentRAM, setCurrentSSD, currentHDD, setCurrentHDD, newHDD, setNewHDD }}>
+    <BenchmarkContext.Provider value={{ scaling, setScaling, oldPowerConsumption, newPowerConsumption, opexBreakdown, capexBreakdown, setSingleComparison, oldPerformanceIndicator, newPerformanceIndicator, comparison, oldSystemOpex, singleComparison, newSystemOpex, intersect, breakEven, workload, utilization, country, setWorkload, setUtilization, setCountry, currentCPU, setCurrentCPU, newCPU, setNewCPU, currentRAM, currentSSD, newRAM, newSSD, setNewRAM, setNewSSD, setCurrentRAM, setCurrentSSD, currentHDD, setCurrentHDD, newHDD, setNewHDD }}>
       {children}
     </BenchmarkContext.Provider>
   );

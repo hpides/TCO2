@@ -14,7 +14,7 @@ import { BLANK_SPACE } from "../utility/UtilityFunctions.ts";
 // const MIN = Math.min(...arr); 
 // const MAX = Math.max(...arr);
 
-function getCountryColor(value :number | null) {
+export function getCountryColor(value :number | null) {
   const f = chroma.scale(['green', 'yellow', 'orange', 'brown']).domain([0, 200, 400, 1000])
   return f(value) as unknown as string;
 }
@@ -168,7 +168,7 @@ const GeoMap: React.FC<GeomapProps> = ({ country, setCountry }) => {
           <GeoJSON data={test.features} onEachFeature={onEachFeature} style={style} />
         </MapContainer>
       </div>
-      <p className="text-sm font-light text-right">
+      <p className="text-sm font-light text-right -mt-2">
         Source:{BLANK_SPACE}
         <a
           className="text-cyan-700 hover:underline duration-300"

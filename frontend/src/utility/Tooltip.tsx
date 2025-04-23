@@ -46,7 +46,7 @@ export default function Tooltip({ tooltipText, hasTooltip, children }: TooltipPr
         {children}
       </p>
       <div
-        className={`absolute bottom-full mb-2 w-max max-w-xs text-base bg-black text-white rounded-lg px-2 py-1 font-normal shadow-lg whitespace-pre-line transition-all duration-300 ease-in-out
+        className={`absolute bottom-full mb-2 w-max max-w-xs text-base bg-black text-white rounded-lg px-2 py-1 text-center font-normal shadow-lg whitespace-pre-line transition-all duration-300 ease-in-out
           ${
             showTooltip
               ? "opacity-100 translate-y-0"
