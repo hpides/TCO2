@@ -13,10 +13,10 @@ export type ScalingType = 'None' | 'Weak Scaling' | 'Strong Scaling'
 
 export const WORKLOAD_TYPES: WorkloadType[] = ['SPECrate', 'SPECspeed', 'Sorting', 'TPC-H'];
 export const WORKLOAD_EXPLANATIONS: string[] = [
-  'Measures multi-threaded performance, simulating environments such as databases and web servers',
-  'Evaluates single-threaded performance for general purpose tasks such as data compression and text processing',
+  'Measures multi-threaded performance, simulating environments such as databases and web servers.¹',
+  'Evaluates single-threaded performance for general purpose tasks such as data compression and text processing.¹',
   'A common yet computationally challenging task that is difficult to fully parallelize. A vector of four billion random integer values (uint32_t, 16GB) is generated, then the time to sort the entire vector is measured',
-  'Assesses analytical database performance by running TPC-H workloads with a scale factor of 10 and 25 read-only query streams on the open-source in-memory database system Hyrise'
+  'Assesses analytical database performance by running TPC-H workloads with a scale factor of 10 and 25 read-only query streams on the open-source in-memory database system Hyrise.²˒³'
 ]
 
 export const SCALING_EXPLANATIONS: string[] = [

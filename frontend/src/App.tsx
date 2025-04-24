@@ -61,7 +61,12 @@ function App() {
           </div>
         </section>
       </main>
-      <footer className='w-full flex flex-col py-10 items-center gap-3 bg-[#CE682A] text-white mt-24 bottom-0'>
+      <section className='flex flex-col text-slate-600 w-full md:w-3/4 px-2 lg:w-3/5 max-w-[2000px] mx-auto text-left mt-14'>
+        <p>1. SPEC CPU Benchmark - <a className='underline hover:opacity-65' href='https://www.spec.org/cpu2017/'>spec.org/cpu2017</a></p>
+        <p>2. TPC-H - <a className='underline hover:opacity-65' href='https://www.tpc.org/tpch/'>tpc.org/tpch</a></p>
+        <p>3. Hyrise - Hyrise is a research in-memory database. <a className='underline hover:opacity-65' href='https://github.com/hyrise/hyrise'>github.com/hyrise/hyrise</a></p>
+      </section>
+      <footer className='w-full flex flex-col py-10 items-center gap-3 bg-[#CE682A] text-white mt-6 bottom-0'>
         <div className='w-full md:w-3/4 px-2 lg:w-3/5 max-w-[2000px] text-lg flex flex-col gap-2'>
           <p className='hover:underline w-fit'>
             <a href='https://hpi.de/'>
@@ -74,7 +79,7 @@ function App() {
             </a>
           </p>
           <p className='hover:underline w-fit'>
-            <a href='https://github.com/hpides'>
+            <a href='https://github.com/hpides/server-buy-advisor'>
               Github
             </a>
           </p>
@@ -85,7 +90,7 @@ function App() {
         <p className='text-center font-extralight'>© Copyright Hasso-Plattner-Institut 2025</p>
       </footer>
     </>
-  )
+)
 }
 
 export default App
