@@ -93,7 +93,7 @@ export const BenchmarkProvider: React.FC<BenchmarkProviderProps> = ({ children }
 
   let utilizationScalingFactor = 1;
 
-  if (scaling == 'Weak Scaling') {
+  if (scaling == 'Utilization') {
     utilizationScalingFactor = oldPerformanceIndicator / newPerformanceIndicator
   }
 

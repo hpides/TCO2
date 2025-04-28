@@ -9,13 +9,8 @@ import { Country, GRID_INTENSITY } from "../assets/grid_intensities.ts";
 import { test } from "../assets/countries.js";
 import { BLANK_SPACE } from "../utility/UtilityFunctions.ts";
 
-// current min max: 22, 814
-// const arr = Object.values(GRID_INTENSITY).filter((x): x is number => x !== null)
-// const MIN = Math.min(...arr); 
-// const MAX = Math.max(...arr);
-
 export function getCountryColor(value :number | null) {
-  const f = chroma.scale(['green', 'yellow', 'orange', 'brown']).domain([0, 200, 400, 1000])
+  const f = chroma.scale(['green', 'yellow', 'orange', 'brown', 'black']).domain([0, 125, 325, 600, 1000])
   return f(value) as unknown as string;
 }
 
@@ -46,20 +41,6 @@ const GeoMap: React.FC<GeomapProps> = ({ country, setCountry }) => {
   }
 
   const style = ((feature: any) :PathOptions => {
-    // stroke?: boolean | undefined;
-    // color?: string | undefined;
-    // weight?: number | undefined;
-    // opacity?: number | undefined;
-    // lineCap?: LineCapShape | undefined;
-    // lineJoin?: LineJoinShape | undefined;
-    // dashArray?: string | number[] | undefined;
-    // dashOffset?: string | undefined;
-    // fill?: boolean | undefined;
-    // fillColor?: string | undefined;
-    // fillOpacity?: number | undefined;
-    // fillRule?: FillRule | undefined;
-    // renderer?: Renderer | undefined;
-    // className?: string | undefined;
     const featureCountry = feature.properties.name;
     const intensity = GRID_INTENSITY[featureCountry];
 
@@ -150,12 +131,12 @@ const GeoMap: React.FC<GeomapProps> = ({ country, setCountry }) => {
 
   return (
     <>
-      <div className="w-full h-96 flex flex-col overflow-hidden rounded-lg border border-slate-500">
+      <div className="w-full relative h-96 flex flex-col overflow-hidden rounded-lg border border-slate-500">
         <MapContainer
           center={[30, 0]}
           zoom={2}
           worldCopyJump={true}
-          style={{ height: "100%", width: "100%" }}
+          style={{ height: "100%", width: "100%", zIndex: 0 }}
           scrollWheelZoom={true}
           minZoom={2}
           ref={mapRef}
@@ -167,6 +148,28 @@ const GeoMap: React.FC<GeomapProps> = ({ country, setCountry }) => {
           {/* @tsignore */}
           <GeoJSON data={test.features} onEachFeature={onEachFeature} style={style} />
         </MapContainer>
+        <div className="absolute z-10 bottom-4 right-4 bg-white p-2 rounded-md border-black border">
+          <p className="text-sm">Grid Carbon Intensity (gCO₂/kWh)</p>
+          <div className="flex h-3 rounded-2xl overflow-hidden w-full">
+            {
+              Array.from({ length: 100 }, (_, i) => (
+                <div key={i}
+                  className="w-[1%] h-full"
+                  style={{ backgroundColor: getCountryColor(i * 10)}}
+                ></div>
+              ))
+            }
+          </div>
+          <div className="relative w-full text-sm">
+            <div className="w-full flex justify-between">
+              {[0, 250, 500, 750, 1000].map((i) => (
+                <p key={i} className="text-center" style={{ transform: '-translateX(-50%)' }}>
+                  {i}
+                </p>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
       <p className="text-sm font-light text-right -mt-2">
         Source:{BLANK_SPACE}

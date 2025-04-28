@@ -8,10 +8,9 @@ import { getCountryColor } from "../partials/GeoMap";
 import GeoMap from "../partials/GeoMap";
 import { ListItem } from "./DetailedBreakdown";
 
-export type WorkloadType = 'SPECrate' | 'SPECspeed' | 'Sorting' | 'TPC-H';
-export type ScalingType = 'None' | 'Weak Scaling' | 'Strong Scaling'
+export const WORKLOAD_TYPES = ['SPECrate', 'SPECspeed', 'Sorting', 'TPC-H'] as const;
+export type WorkloadType = typeof WORKLOAD_TYPES[number];
 
-export const WORKLOAD_TYPES: WorkloadType[] = ['SPECrate', 'SPECspeed', 'Sorting', 'TPC-H'];
 export const WORKLOAD_EXPLANATIONS: string[] = [
   'Measures multi-threaded performance, simulating environments such as databases and web servers.¹',
   'Evaluates single-threaded performance for general purpose tasks such as data compression and text processing.¹',
@@ -25,7 +24,8 @@ export const SCALING_EXPLANATIONS: string[] = [
   'The utilization stays the same, while the workload of the stronger performing hardware is scaled up to match the increase in performancei'
 ];
 
-export const SCALING_TYPES: ScalingType[] = ['None', 'Weak Scaling', 'Strong Scaling'];
+export const SCALING_TYPES = ['None', 'Utilization', 'Resources'] as const;
+export type ScalingType = typeof SCALING_TYPES[number];
 
 export type PerformanceType = number | null;
 
@@ -95,7 +95,7 @@ function BenchmarkSettings() {
         <div className="flex flex-col col-span-5 justify-evenly gap-2">
           <ToggleSelection<WorkloadType>
             label="Workload:"
-            options={WORKLOAD_TYPES}
+            options={[...WORKLOAD_TYPES]}
             optionsTooltip={WORKLOAD_EXPLANATIONS}
             currentState={workload}
             setState={setWorkload}
@@ -105,12 +105,12 @@ function BenchmarkSettings() {
           />
           <ToggleSelection<ScalingType>
             label="Scaling:"
-            options={SCALING_TYPES}
+            options={[...SCALING_TYPES]}
             optionsTooltip={SCALING_EXPLANATIONS}
             currentState={scaling}
             setState={setScaling}
             zIndex="z-30"
-            disabled={['Strong Scaling']}
+            disabled={['Resources']}
             flexGrow={false}
           />
           <div className="flex gap-2 items-center">
