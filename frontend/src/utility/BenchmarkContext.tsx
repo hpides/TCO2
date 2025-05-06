@@ -29,6 +29,7 @@ interface BenchmarkContextType {
   newRAM: number;
   newSSD: number;
   newHDD: number;
+  advancedSettings: boolean;
   workload: WorkloadType;
   scaling: ScalingType;
   utilization: number;
@@ -45,6 +46,7 @@ interface BenchmarkContextType {
   opexBreakdown: OpexType;
   oldPowerConsumption: number;
   newPowerConsumption: number;
+  setAdvancedSettings: (value: boolean) => void;
   setCurrentCPU: (value: string) => void;
   setCurrentRAM: (value: number) => void;
   setCurrentSSD: (value: number) => void;
@@ -78,6 +80,7 @@ export const BenchmarkProvider: React.FC<BenchmarkProviderProps> = ({ children }
   const [newHDD, setNewHDD] = useState<number>(HDD_CAPACITIES[0]);
 
   const [singleComparison, setSingleComparison] = useState<boolean>(currentCPU === newCPU);
+  const [advancedSettings, setAdvancedSettings] = useState<boolean>(false);
 
   // Settings section
   const [workload, setWorkload] = useState<WorkloadType>(WORKLOAD_TYPES[0]);
@@ -167,7 +170,7 @@ export const BenchmarkProvider: React.FC<BenchmarkProviderProps> = ({ children }
   const newPowerConsumption = comparison.newPowerConsumption;
 
   return (
-    <BenchmarkContext.Provider value={{ scaling, setScaling, oldPowerConsumption, newPowerConsumption, opexBreakdown, capexBreakdown, setSingleComparison, oldPerformanceIndicator, newPerformanceIndicator, comparison, oldSystemOpex, singleComparison, newSystemOpex, intersect, breakEven, workload, utilization, country, setWorkload, setUtilization, setCountry, currentCPU, setCurrentCPU, newCPU, setNewCPU, currentRAM, currentSSD, newRAM, newSSD, setNewRAM, setNewSSD, setCurrentRAM, setCurrentSSD, currentHDD, setCurrentHDD, newHDD, setNewHDD }}>
+    <BenchmarkContext.Provider value={{ advancedSettings, setAdvancedSettings, scaling, setScaling, oldPowerConsumption, newPowerConsumption, opexBreakdown, capexBreakdown, setSingleComparison, oldPerformanceIndicator, newPerformanceIndicator, comparison, oldSystemOpex, singleComparison, newSystemOpex, intersect, breakEven, workload, utilization, country, setWorkload, setUtilization, setCountry, currentCPU, setCurrentCPU, newCPU, setNewCPU, currentRAM, currentSSD, newRAM, newSSD, setNewRAM, setNewSSD, setCurrentRAM, setCurrentSSD, currentHDD, setCurrentHDD, newHDD, setNewHDD }}>
       {children}
     </BenchmarkContext.Provider>
   );

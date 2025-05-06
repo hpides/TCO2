@@ -15,9 +15,11 @@ const Sections: React.FC<SectionsProps> = ({ title, markup }) => {
   return (
     <>
       <section>
-        <div className='w-full flex items-center gap-4'>
-          <h2 className='text-lg'>{title}</h2>
+        <div className='w-full flex items-center gap-4 relative'>
+          <h2 className='font-semibold text-lg'>{title}</h2>
           <hr className='border-t-hpi-red grow border-t-2 border-r-full' />
+          <div className='absolute border-r-hpi-red border-r-2 h-4 right-0 translate-y-[50%]'>
+          </div>
         </div>
         {markup}
       </section>
@@ -43,12 +45,20 @@ function App() {
         <section className='flex flex-col justify-center py-4'>
           <h1 className='text-3xl text-center'>TCO<sub>2</sub>: Analyzing the Carbon Footprint of Database Server
             Replacements</h1>
-          <p className='text-cyan-700 underline underline-offset-2 text-lg text-center'>
-            <a
-              href='https://hpi.de/rabl/news/2024/paper-on-ecological-efficiency-of-database-servers-accepted-at-cidr-2025.html'
-              target='_blank'
-            >Read Paper</a>
-          </p>
+          <div className='flex mx-auto gap-8'>
+            <p className='text-cyan-700 underline underline-offset-2 text-lg text-center'>
+              <a
+                href='https://hpi.de/rabl/news/2024/paper-on-ecological-efficiency-of-database-servers-accepted-at-cidr-2025.html'
+                target='_blank'
+              >Read Paper</a>
+            </p>
+            <p className='text-cyan-700 underline underline-offset-2 text-lg text-center'>
+              Configuration Presets
+            </p>
+            <p className='text-cyan-700 underline underline-offset-2 text-lg text-center'>
+              Read More
+            </p>
+          </div>
         </section>
         <section className='grid grid-cols-1 lg:grid-cols-2 gap-10'>
           <div className='col-span-1 flex flex-col gap-8'>

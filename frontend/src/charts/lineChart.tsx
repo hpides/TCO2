@@ -267,7 +267,7 @@ const LineChart: React.FC<{}> = memo(function LineChart() {
                 display: true,
                 type: "label",
                 backgroundColor: intersect ? 'transparent' : 'white',
-                content: intersect ? yearToYearAndMonth(Number(intersect.x.toFixed(1)), true) : ['No Break-Even', 'Power Consumption Ratio', 'exceeds Performance Ratio'],
+                content: intersect ? yearToYearAndMonth(Number(intersect.x.toFixed(1)), true) : 'No Break-Even Possible',
                 color: "red",
                 z: -1,
                 font: {

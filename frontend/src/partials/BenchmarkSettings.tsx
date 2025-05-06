@@ -6,23 +6,13 @@ import { addCommaToNumber } from "../utility/UtilityFunctions";
 import { getCountryColor } from "../partials/GeoMap";
 // @tsignore
 import GeoMap from "../partials/GeoMap";
-import { ListItem } from "./DetailedBreakdown";
+// @ts-ignore
+import { COUNTRY_NAMES } from '../assets/countries.js';
+import { ListItem, ListItemWithSearch } from "../utility/ListItems";
+import { WORKLOAD_EXPLANATIONS, SCALING_EXPLANATIONS } from "../utility/descriptions";
 
 export const WORKLOAD_TYPES = ['SPECrate', 'SPECspeed', 'Sorting', 'TPC-H'] as const;
 export type WorkloadType = typeof WORKLOAD_TYPES[number];
-
-export const WORKLOAD_EXPLANATIONS: string[] = [
-  'Measures multi-threaded performance, simulating environments such as databases and web servers.¹',
-  'Evaluates single-threaded performance for general purpose tasks such as data compression and text processing.¹',
-  'A common yet computationally challenging task that is difficult to fully parallelize. A vector of four billion random integer values (uint32_t, 16GB) is generated, then the time to sort the entire vector is measured',
-  'Assesses analytical database performance by running TPC-H workloads with a scale factor of 10 and 25 read-only query streams on the open-source in-memory database system Hyrise.²˒³'
-]
-
-export const SCALING_EXPLANATIONS: string[] = [
-  'The utilization and workload stay the same across both configurations',
-  'The workload amount stays the same, while the utilization of the stronger hardware is scaled down to match the workload',
-  'The utilization stays the same, while the workload of the stronger performing hardware is scaled up to match the increase in performancei'
-];
 
 export const SCALING_TYPES = ['None', 'Utilization', 'Resources'] as const;
 export type ScalingType = typeof SCALING_TYPES[number];
@@ -71,7 +61,7 @@ export const WORKLOAD_MAPPING: WorkloadMappingType = {
 
 function BenchmarkSettings() {
 
-  const { country, currentCPU, newCPU, workload, scaling, utilization, singleComparison, setCountry, setWorkload, setScaling, setUtilization } = useBenchmarkContext();
+  const { country, currentCPU, newCPU, workload, scaling, utilization, singleComparison, advancedSettings, setCountry, setWorkload, setScaling, setUtilization } = useBenchmarkContext();
 
   const intensity = GRID_INTENSITY[country];
   let disabledWorkload: WorkloadType[] = [];
@@ -114,7 +104,29 @@ function BenchmarkSettings() {
             flexGrow={false}
           />
           <div className="flex gap-2 items-center">
-            <label><p>Utilization %:</p></label>
+            <label><p>{advancedSettings ? 'Current HW ' : ''}Utilization %:</p></label>
+            <input
+              className="grow accent-orange-600"
+              type="range"
+              value={utilization}
+              min={0}
+              max={100}
+              onChange={(e) => setUtilization(Number(e.target.value))}
+            />
+            <div className="flex gap-1">
+              <input
+                className="border rounded-md text-center bg-white"
+                type="number"
+                min={0}
+                max={100}
+                value={utilization}
+                onChange={(e) => setUtilization(Number(e.target.value))}
+              />
+              <p>%</p>
+            </div>
+          </div>
+          <div hidden={!advancedSettings} className="flex gap-2 items-center">
+            <label><p>New HW Utilization %:</p></label>
             <input
               className="grow accent-orange-600"
               type="range"
@@ -137,19 +149,23 @@ function BenchmarkSettings() {
           </div>
         </div>
         <div className="flex font-normal gap-2 flex-col col-span-2">
-            <ListItem
-              label="Location"
-              value={country}
-              borderColor={getCountryColor(intensity)}
-            />
-            <ListItem
-              label="Grid Carbon Intensity"
-              value={`${addCommaToNumber(intensity)} gCO₂/kWh`}
-              borderColor={getCountryColor(intensity)}
-            />
+          <ListItemWithSearch
+            label="Location"
+            value={country}
+            options={COUNTRY_NAMES}
+            onChange={setCountry}
+            borderColor={getCountryColor(intensity)}
+          />
+          <ListItem
+            label="Grid Carbon Intensity"
+            value={`${addCommaToNumber(intensity)} gCO₂/kWh`}
+            borderColor={getCountryColor(intensity)}
+          />
         </div>
       </div>
-      <GeoMap country={country} setCountry={setCountry} />
+      <div className={`${advancedSettings ? 'h-0' : 'h-96'} duration-300 ease-in-out overflow-hidden relative`}>
+        <GeoMap country={country} setCountry={setCountry} />
+      </div>
     </div>
   )
 }

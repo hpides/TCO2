@@ -3,24 +3,7 @@ import { useBenchmarkContext } from "../utility/BenchmarkContext";
 import { addCommaToNumber, yearToYearAndMonth, BLANK_SPACE, withinXPercent } from "../utility/UtilityFunctions";
 import CPU_DATA, { CPUMetric, CPU_METRICS } from "../assets/data";
 import { CapexType, OpexType, CPU, RAM, SSD, HDD, Components } from "../utility/lifecycle_analysis/system";
-
-// Reusable ListItem Component
-interface ListItemProps {
-  label: string;
-  value?: string | number;
-  borderColor: string;
-}
-
-export const ListItem: React.FC<ListItemProps> = ({ label, value, borderColor }) => {
-  return (
-    <li style={{borderColor: borderColor }} className={`border-[3px] rounded-lg flex flex-col items-start justify-start px-3 py-2 duration-200 ease-in-out`}>
-      <p className="text-base font-semibold flex flex-col text-wrap">
-        {label}
-      </p>
-      <p className="text-lg">{value ?? "--"}</p>
-    </li>
-  );
-};
+import { ListItem } from "../utility/ListItems";
 
 interface TableRowProps {
   name: string;
@@ -103,7 +86,7 @@ const BreakdownCard: React.FC<BreakdownCardProp> = ({ title, breakdown, borderCo
     return ((value / breakdown.TOTAL) * 100).toFixed(0) + "%";
   };
   return (
-    <div className={`flex flex-col border-[3px] rounded-lg gap-2 px-3 py-2 duration-200 ease-in-out ${borderColor}`}>
+    <div className={`flex flex-col border-2 rounded-lg gap-2 px-3 py-2 duration-200 ease-in-out ${borderColor}`}>
       <p className="font-semibold">{title}</p>
       <div className="text-lg flex flex-col gap-1">
         {[CPU, RAM, SSD, HDD].map(value => (
@@ -150,9 +133,9 @@ function DetailedBreakdown() {
   return (
     <div className="flex flex-col px-2 py-4 gap-10">
       <div className="flex flex-col gap-4">
-        <div className="grid grid-cols-9 gap-4">
+        <div className="grid grid-cols-4 gap-4">
           {/* Left Side - 2x2 Grid */}
-          <ul className="grid grid-cols-2 col-span-4 gap-4 grow">
+          <ul className="grid grid-cols-3 col-span-4 gap-4 grow">
             <ListItem
               label="Break-Even Time"
               value={`${year}`}
@@ -169,7 +152,7 @@ function DetailedBreakdown() {
               borderColor="var(--color-hpi-orange)"
             />
           </ul>
-          <div className="flex flex-col border-[3px] border-hpi-orange rounded-lg px-1 py-1 col-span-5">
+          <div className="flex flex-col border-2 border-hpi-orange rounded-lg px-1 py-1 col-span-5">
             {
               /*
                * styling for table can be found in style.css
@@ -179,7 +162,7 @@ function DetailedBreakdown() {
               <thead>
                 <tr>
                   <th className="w-1/3 border-r">{BLANK_SPACE}</th>
-                  <th className="w-1/3 text-left border-r"><p>({workload})</p><p>Performance</p><p>Indicator</p></th>
+                  <th className="w-1/3 text-left border-r"><p>({workload})</p><p>Performance Indicator</p></th>
                   <th className="w-1/3 text-left align-bottom"><p>Power</p><p>Consumption</p></th>
                 </tr>
               </thead>
@@ -207,48 +190,48 @@ function DetailedBreakdown() {
               </tbody>
             </table>
           </div>
-          <div className="hidden flex-col border-[3px] border-hpi-orange rounded-lg px-3 py-2 col-span-5">
-            <p className="font-semibold">{workload} Performance indicator:</p>
-            <table className="text-lg">
-              <tr>
-                <td>Current Hardware:</td>
-                <td>{oldPerfFormatted}</td>
-              </tr>
-              {
-                !singleComparison &&
-                  <>
-                    <tr>
-                      <td>New Hardware:</td>
-                      <td>{newPerfFormatted}</td>
-                    </tr>
-                    <tr>
-                      <td>Ratio:</td>
-                      <td>{perfRatio}</td>
-                    </tr>
-                  </>
-              }
-            </table>
-            <p className="font-semibold">Total Power Consumption:</p>
-            <table className="text-lg">
-              <tr>
-                <td>Current Hardware:</td>
-                <td>{oldConsumptionFormatted} kW</td>
-              </tr>
-              {
-                !singleComparison &&
-                  <>
-                    <tr>
-                      <td>New Hardware:</td>
-                      <td>{newConsumptionFormatted} kW</td>
-                    </tr>
-                    <tr>
-                      <td>Ratio:</td>
-                      <td>{consumptionRatio}</td>
-                    </tr>
-                  </>
-              }
-            </table>
-          </div>
+        </div>
+        <div className="hidden flex-col border-2 border-hpi-orange rounded-lg px-3 py-2 col-span-5">
+          <p className="font-semibold">{workload} Performance indicator:</p>
+          <table className="text-lg">
+            <tr>
+              <td>Current Hardware:</td>
+              <td>{oldPerfFormatted}</td>
+            </tr>
+            {
+              !singleComparison &&
+                <>
+                  <tr>
+                    <td>New Hardware:</td>
+                    <td>{newPerfFormatted}</td>
+                  </tr>
+                  <tr>
+                    <td>Ratio:</td>
+                    <td>{perfRatio}</td>
+                  </tr>
+                </>
+            }
+          </table>
+          <p className="font-semibold">Total Power Consumption:</p>
+          <table className="text-lg">
+            <tr>
+              <td>Current Hardware:</td>
+              <td>{oldConsumptionFormatted} kW</td>
+            </tr>
+            {
+              !singleComparison &&
+                <>
+                  <tr>
+                    <td>New Hardware:</td>
+                    <td>{newConsumptionFormatted} kW</td>
+                  </tr>
+                  <tr>
+                    <td>Ratio:</td>
+                    <td>{consumptionRatio}</td>
+                  </tr>
+                </>
+            }
+          </table>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <BreakdownCard

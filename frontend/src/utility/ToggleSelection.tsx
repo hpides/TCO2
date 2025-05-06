@@ -87,8 +87,16 @@ ${disabled.includes(option) ? "cursor-not-allowed text-gray-300 hover:border-b-t
         </button>
       ))}
       { extraInput &&
-        <div className={`flex items-start duration-150 ${currentState == extra ? '' : 'opacity-80'}`}>
-          <input type="text" className={`${currentState == extra ? `${border} font-bold` : `border-b-transparent ${borderHover}`} cursor-pointer text-center duration-150 border-b-4 ${color == 'New' ? 'focus:outline-hpi-new/30' : 'focus:outline-hpi-current/30'} w-14`}
+        <div className={`flex group border-b-4 justify-evenly items-start flex-1 duration-150 ${
+currentState == extra ?
+`${color == 'New' ? 'border-b-hpi-new ' : 'border-b-hpi-current'}` :
+'border-b-transparent'
+}`}>
+          <input type="text" className={`
+${currentState == extra ? `${border} font-bold` : `border-b-transparent ${borderHover}`}
+cursor-pointer text-center duration-150 
+${color == 'New' ? 'focus:outline-hpi-new/30' : 'focus:outline-hpi-current/30'}
+w-14`}
             onFocus={(e) => extraFocus(e.target.value, true)}
             onChange={(e) => extraFocus(e.target.value)}
             onBlur={(e) => extraUnfocus(e.target.value)}

@@ -6,7 +6,7 @@ import chroma from "chroma-js";
 
 import { Country, GRID_INTENSITY } from "../assets/grid_intensities.ts";
 //@ts-ignore
-import { test } from "../assets/countries.js";
+import { COUNTRY_GEOJSON } from "../assets/countries.js";
 import { BLANK_SPACE } from "../utility/UtilityFunctions.ts";
 
 export function getCountryColor(value :number | null) {
@@ -131,7 +131,7 @@ const GeoMap: React.FC<GeomapProps> = ({ country, setCountry }) => {
 
   return (
     <>
-      <div className="w-full relative h-96 flex flex-col overflow-hidden rounded-lg border border-slate-500">
+      <div className="w-full relative h-full flex flex-col overflow-hidden rounded-lg border border-slate-500">
         <MapContainer
           center={[30, 0]}
           zoom={2}
@@ -146,7 +146,7 @@ const GeoMap: React.FC<GeomapProps> = ({ country, setCountry }) => {
             url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png"
           />
           {/* @tsignore */}
-          <GeoJSON data={test.features} onEachFeature={onEachFeature} style={style} />
+          <GeoJSON data={COUNTRY_GEOJSON.features} onEachFeature={onEachFeature} style={style} />
         </MapContainer>
         <div className="absolute z-10 bottom-4 right-4 bg-white p-2 rounded-md border-black border">
           <p className="text-sm">Grid Carbon Intensity (gCO₂/kWh)</p>
