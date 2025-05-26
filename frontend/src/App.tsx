@@ -42,9 +42,9 @@ function App() {
         </a>
       </header>
       <main className='w-full px-10 max-w-[2000px] mx-auto relative flex flex-col gap-8'>
-        <section className='flex flex-col justify-center py-4'>
-          <h1 className='text-3xl text-center'>TCO<sub>2</sub>: Analyzing the Carbon Footprint of Database Server
-            Replacements</h1>
+        <section className='flex flex-col justify-center py-4 gap-2'>
+          <h1 className='text-3xl text-center font-medium'>TCO<sub>2</sub>: Total CO<sub>2</sub> Cost of Ownership</h1>
+          <h2 className='text-lg text-center font-light text-slate-600'>Analyzing the Carbon Footprint of Database Server Replacements</h2>
           <div className='flex mx-auto gap-8'>
             <p className='text-cyan-700 underline underline-offset-2 text-lg text-center'>
               <a
@@ -71,7 +71,7 @@ function App() {
           </div>
         </section>
       </main>
-      <section className='flex flex-col text-slate-600 w-full md:w-3/4 px-2 lg:w-3/5 max-w-[2000px] mx-auto text-left mt-14'>
+      <section className='flex flex-col text-slate-600 w-full px-10 max-w-[2000px] mx-auto text-left mt-14'>
         <p>1. SPEC CPU Benchmark - <a className='underline hover:opacity-65' href='https://www.spec.org/cpu2017/'>spec.org/cpu2017</a></p>
         <p>2. TPC-H - <a className='underline hover:opacity-65' href='https://www.tpc.org/tpch/'>tpc.org/tpch</a></p>
         <p>3. Hyrise - Hyrise is a research in-memory database. <a className='underline hover:opacity-65' href='https://github.com/hyrise/hyrise'>github.com/hyrise/hyrise</a></p>

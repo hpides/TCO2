@@ -105,12 +105,12 @@ const BreakdownCard: React.FC<BreakdownCardProp> = ({ title, breakdown, borderCo
 };
 
 function DetailedBreakdown() {
-  const { currentCPU, newCPU, comparison, intersect, workload, singleComparison, oldPerformanceIndicator, newPerformanceIndicator, capexBreakdown, opexBreakdown, oldPowerConsumption, newPowerConsumption } = useBenchmarkContext();
+  const { currentServer, newServer, comparison, intersect, workload, singleComparison, oldPerformanceIndicator, newPerformanceIndicator, capexBreakdown, opexBreakdown, oldPowerConsumption, newPowerConsumption } = useBenchmarkContext();
 
-  const year = intersect ? yearToYearAndMonth(Number(intersect.x.toFixed(1))) : "No Break-Even";
+  const year = intersect ? yearToYearAndMonth(Number(intersect.x.toFixed(1)), false, true) : "No Break-Even";
   const total = intersect ? addCommaToNumber(Number(intersect.y.toFixed(1))) + " kgCO₂" : "No Break-even";
-  const currentData = CPU_DATA[currentCPU];
-  const newData = CPU_DATA[newCPU];
+  const currentData = CPU_DATA[currentServer.cpu];
+  const newData = CPU_DATA[newServer.cpu];
   const embodiedCarbon = Number(comparison.newSystemOpex[0].toFixed(1));
 
   const titleText = singleComparison ? 'Current' : 'New'
@@ -135,7 +135,7 @@ function DetailedBreakdown() {
       <div className="flex flex-col gap-4">
         <div className="grid grid-cols-4 gap-4">
           {/* Left Side - 2x2 Grid */}
-          <ul className="grid grid-cols-3 col-span-4 gap-4 grow">
+          <ul className="grid grid-cols-3 col-span-5 gap-4 grow">
             <ListItem
               label="Break-Even Time"
               value={`${year}`}
@@ -253,11 +253,11 @@ function DetailedBreakdown() {
               <th className="w-1/5"></th>
               <th className="w-2/5 border-b-4 border-[#B4D8E7]">
                 <p className="font-light">Current Hardware</p>
-                <p className="font-medium">{currentCPU}</p>
+                <p className="font-medium">{currentServer.cpu}</p>
               </th>
               <th className="border-b-4 border-[#F1B16E]" hidden={singleComparison}>
                 <p className="font-light">New Hardware</p>
-                <p className="font-medium">{newCPU}</p>
+                <p className="font-medium">{newServer.cpu}</p>
               </th>
             </tr>
           </thead>

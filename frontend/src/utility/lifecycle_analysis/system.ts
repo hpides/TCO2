@@ -62,6 +62,7 @@ export class System {
     // Constants
     const MPA = 0.5; // Procure materials | kg CO2 per cm^2
     const EPA = 2.15; // Fab Energy | kWh per cm^2
+    // TODO: Should this be separated for AMD and Intel CPUs
     const CI_FAB = 0.365; // g CO2 per kWh converted to kg CO2 per kWh
     const GPA = 0.3; // Kg CO2 per cm^2
     const FAB_YIELD = 0.875; // Fab yield

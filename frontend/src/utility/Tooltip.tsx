@@ -2,11 +2,10 @@ import { useState, useRef } from "react";
 
 interface TooltipProps {
   tooltipText: string;
-  hasTooltip?: boolean;
   children: React.ReactNode;
 }
 
-export default function Tooltip({ tooltipText, hasTooltip, children }: TooltipProps) {
+export default function Tooltip({ tooltipText, children }: TooltipProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const timeoutRef = useRef<number | null>(null);
@@ -25,12 +24,6 @@ export default function Tooltip({ tooltipText, hasTooltip, children }: TooltipPr
     }
     setShowTooltip(false);
   };
-
-  if (!hasTooltip) {
-    return (
-      <>{children}</>
-    )
-  }
 
   return (
     <div

@@ -34,8 +34,6 @@ const ToggleSelection = <T,>({
 
   const [extra, setExtra] = useState(EXTRA_DEFAULT);
 
-  const hasTooltip = optionsTooltip.length > 0;
-
   const extraFocus = (value: any, initial: boolean = false) => {
     setExtra((initial && value == EXTRA_DEFAULT) ? "" : value);
     if (value == Number(value)) setState(value as unknown as T);
@@ -81,7 +79,7 @@ ${capitalize ? " capitalize" : ""}
 ${disabled.includes(option) ? "cursor-not-allowed text-gray-300 hover:border-b-transparent" : "cursor-pointer"}
 `}
         >
-          <Tooltip hasTooltip={hasTooltip} tooltipText={hasTooltip ? optionsTooltip[index] : ''}>
+          <Tooltip tooltipText={optionsTooltip[index]}>
             {String(option)}
           </Tooltip>
         </button>

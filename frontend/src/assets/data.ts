@@ -44,7 +44,7 @@ const CPU_DATA : CPUs= {
     "TPCH_RUNS_PER_KJOULE": 0.0897,
     "SPECINT_PER_TDP": 1.38974358974359,
     "SPECINTrate_PER_TDP": 0.470085470085469,
-    "DIE_SIZE": 541
+    "DIE_SIZE": 541 // UNSURE
   },
   "Intel Xeon E7-4850 v4": {
     "MAKE": INTEL,
@@ -60,7 +60,7 @@ const CPU_DATA : CPUs= {
     "TPCH_RUNS_PER_KJOULE": 0.1037,
     "SPECINT_PER_TDP": 1.85507246376811,
     "SPECINTrate_PER_TDP": 0.95,
-    "DIE_SIZE": 456
+    "DIE_SIZE": 456 // UNSURE
   },
   "Intel Xeon Platinum 8180": {
     "MAKE": INTEL,
@@ -76,7 +76,7 @@ const CPU_DATA : CPUs= {
     "TPCH_RUNS_PER_KJOULE": 0.1106,
     "SPECINT_PER_TDP": 2.54704390243902,
     "SPECINTrate_PER_TDP": 0.673170731707317,
-    "DIE_SIZE": 628
+    "DIE_SIZE": 694 // UNSURE
   },
   "Intel Xeon Platinum 8259CL": {
     "MAKE": INTEL,
@@ -92,7 +92,7 @@ const CPU_DATA : CPUs= {
     "TPCH_RUNS_PER_KJOULE": 0.1164,
     "SPECINT_PER_TDP": 2.99636363636364,
     "SPECINTrate_PER_TDP": 0.6666666666,
-    "DIE_SIZE": 754
+    "DIE_SIZE": 754 // UNSURE
   },
   "Intel Xeon Platinum 8352Y": {
     "MAKE": INTEL,
@@ -108,7 +108,7 @@ const CPU_DATA : CPUs= {
     "TPCH_RUNS_PER_KJOULE": 0.1552,
     "SPECINT_PER_TDP": 3.64572097560976,
     "SPECINTrate_PER_TDP": 1.04878048780488,
-    "DIE_SIZE": 660
+    "DIE_SIZE": 660 // UNSURE
   },
   "Intel Xeon Platinum 8480CL": {
     "MAKE": INTEL,
@@ -124,7 +124,7 @@ const CPU_DATA : CPUs= {
     "TPCH_RUNS_PER_KJOULE": 0.1332,
     "SPECINT_PER_TDP": 4.7264,
     "SPECINTrate_PER_TDP": 1.26714285714286,
-    "DIE_SIZE": (4*477)
+    "DIE_SIZE": (4*477) // https://www.techpowerup.com/cpu-specs/xeon-platinum-8480.c2958
   },
   "Intel Xeon Platinum 8570": {
     "MAKE": INTEL,
@@ -140,7 +140,7 @@ const CPU_DATA : CPUs= {
     "TPCH_RUNS_PER_KJOULE": 0.1399,
     "SPECINT_PER_TDP": 4.736,
     "SPECINTrate_PER_TDP": 1.37714285714286,
-    "DIE_SIZE": (2*763)
+    "DIE_SIZE": (2*763) // https://www.techpowerup.com/cpu-specs/xeon-platinum-8570.c3410
   },
   "AMD EPYC 7601": {
     "MAKE": AMD,
@@ -156,7 +156,7 @@ const CPU_DATA : CPUs= {
     "TPCH_RUNS_PER_KJOULE": null,
     "SPECINT_PER_TDP": 0.03977777777,
     "SPECINTrate_PER_TDP": 0.83888888888,
-    "DIE_SIZE": 213
+    "DIE_SIZE": 213 // https://www.techpowerup.com/cpu-specs/epyc-7601.c1920
   },
   "AMD EPYC 7402P": {
     "MAKE": AMD,
@@ -172,7 +172,7 @@ const CPU_DATA : CPUs= {
     "TPCH_RUNS_PER_KJOULE": null,
     "SPECINT_PER_TDP": 0.04805555555,
     "SPECINTrate_PER_TDP": 0.94444444444,
-    "DIE_SIZE": 74
+    "DIE_SIZE": 74 // https://www.techpowerup.com/cpu-specs/epyc-7402p.c2261
   },
   "AMD EPYC 7302P": {
     "MAKE": AMD,
@@ -188,7 +188,7 @@ const CPU_DATA : CPUs= {
     "TPCH_RUNS_PER_KJOULE": null,
     "SPECINT_PER_TDP": 0.05516129032,
     "SPECINTrate_PER_TDP": 0.76129032258,
-    "DIE_SIZE": 74
+    "DIE_SIZE": 74 // https://www.techpowerup.com/cpu-specs/epyc-7302p.c2262
   },
   "AMD EPYC 7513": {
     "MAKE": AMD,
@@ -204,7 +204,7 @@ const CPU_DATA : CPUs= {
     "TPCH_RUNS_PER_KJOULE": null,
     "SPECINT_PER_TDP": 0.0615,
     "SPECINTrate_PER_TDP": 1.26,
-    "DIE_SIZE": (8*81)
+    "DIE_SIZE": (8*81) //https://www.techpowerup.com/cpu-specs/epyc-7513.c2381
   },
   "AMD EPYC 7773X": {
     "MAKE": AMD,
@@ -220,7 +220,7 @@ const CPU_DATA : CPUs= {
     "TPCH_RUNS_PER_KJOULE": null,
     "SPECINT_PER_TDP": 0.04392857142,
     "SPECINTrate_PER_TDP": 1.45,
-    "DIE_SIZE": (8*81)
+    "DIE_SIZE": (8*81) //https://www.techpowerup.com/cpu-specs/epyc-7773x.c2759
   },
   "AMD EPYC 9554": {
     "MAKE": AMD,
@@ -236,7 +236,7 @@ const CPU_DATA : CPUs= {
     "TPCH_RUNS_PER_KJOULE": null,
     "SPECINT_PER_TDP": 0.04138888888,
     "SPECINTrate_PER_TDP": 1.81944444444,
-    "DIE_SIZE": (8*72)
+    "DIE_SIZE": (8*72) // https://www.techpowerup.com/cpu-specs/epyc-9554.c2930
   }
 }
 

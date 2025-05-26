@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, ReactNode } from 'react';
+import { createContext, useState, useContext, ReactNode, useRef } from 'react';
 import { WorkloadType, WORKLOAD_TYPES, WORKLOAD_MAPPING, ScalingType, SCALING_TYPES } from '../partials/BenchmarkSettings';
 import { Country } from '../assets/grid_intensities';
 import { CPU_LIST, HDD_CAPACITIES } from '../partials/Compare';
@@ -11,6 +11,9 @@ import { RAM_CAPACITIES, SSD_CAPACITIES } from '../partials/Compare';
 
 export const FIRST_COUNTRY: Country = "Germany"
 
+export const NEW_LABEL = "New Hardware";
+export const OLD_LABEL = "Current Hardware";
+
 // Assumptions
 const timeHorizon = 1000;
 
@@ -20,46 +23,45 @@ const lifetime = 20;
 // const ssdCapacity = 2 * 1600; // in GB
 // const hddCapacity = 0; // in GB
 
-interface BenchmarkContextType {
-  currentCPU: string;
-  currentRAM: number;
-  currentSSD: number;
-  currentHDD: number;
-  newCPU: string;
-  newRAM: number;
-  newSSD: number;
-  newHDD: number;
-  advancedSettings: boolean;
-  workload: WorkloadType;
-  scaling: ScalingType;
+export interface ServerType {
+  cpu: string;
+  ram: number;
+  ssd: number;
+  hdd: number;
   utilization: number;
+}
+
+interface BenchmarkContextType {
+  currentServer: ServerType;
+  setCurrentServer: (value: ServerType) => void;
+  newServer: ServerType;
+  setNewServer: (value: ServerType) => void;
+  advancedSettings: boolean;
+  setAdvancedSettings: (value: boolean) => void;
+  advancedOptions: null | 'Mirror' | 'Scale';
+  setAdvancedOptions: (value: null | 'Mirror' | 'Scale') => void;
+  workload: WorkloadType;
+  setWorkload: (value: WorkloadType) => void;
+  scaling: ScalingType;
+  setScaling: (value: ScalingType) => void;
+  utilization: number;
+  setUtilization: (value: number) => void;
   country: Country;
+  setCountry: (value: Country) => void;
   comparison: ComparisonType;
   oldSystemOpex: number[];
   newSystemOpex: number[];
   breakEven: number;
   intersect: { x:number, y:number } | false;
   singleComparison: boolean;
+  setSingleComparison: (value: boolean) => void;
   oldPerformanceIndicator: number;
   newPerformanceIndicator: number;
   capexBreakdown: CapexType;
   opexBreakdown: OpexType;
   oldPowerConsumption: number;
   newPowerConsumption: number;
-  setAdvancedSettings: (value: boolean) => void;
-  setCurrentCPU: (value: string) => void;
-  setCurrentRAM: (value: number) => void;
-  setCurrentSSD: (value: number) => void;
-  setCurrentHDD: (value: number) => void;
-  setNewCPU: (value: string) => void;
-  setNewRAM: (value: number) => void;
-  setNewSSD: (value: number) => void;
-  setNewHDD: (value: number) => void;
-  setWorkload: (value: WorkloadType) => void;
-  setScaling: (value: ScalingType) => void;
-  setUtilization: (value: number) => void;
-  setCountry: (value: Country) => void;
-  setSingleComparison: (value: boolean) => void;
+  updateServer: (server: ServerType, updates: Partial<ServerType>) => void;
 }
 
 const BenchmarkContext = createContext<BenchmarkContextType | undefined>(undefined);
@@ -70,17 +72,31 @@ interface BenchmarkProviderProps {
 
 export const BenchmarkProvider: React.FC<BenchmarkProviderProps> = ({ children }) => {
   // Compare section
-  const [currentCPU, setCurrentCPU] = useState<string>(CPU_LIST[0]);
-  const [currentRAM, setCurrentRAM] = useState<number>(RAM_CAPACITIES[0]);
-  const [currentSSD, setCurrentSSD] = useState<number>(SSD_CAPACITIES[0]);
-  const [currentHDD, setCurrentHDD] = useState<number>(HDD_CAPACITIES[0]);
-  const [newCPU, setNewCPU] = useState<string>(CPU_LIST[0]);
-  const [newRAM, setNewRAM] = useState<number>(RAM_CAPACITIES[0]);
-  const [newSSD, setNewSSD] = useState<number>(SSD_CAPACITIES[0]);
-  const [newHDD, setNewHDD] = useState<number>(HDD_CAPACITIES[0]);
+  const [currentServer, setCurrentServer] = useState<ServerType>({
+    cpu: CPU_LIST[0],
+    ram: RAM_CAPACITIES[0],
+    ssd: SSD_CAPACITIES[0],
+    hdd: HDD_CAPACITIES[0],
+    utilization: 40,
+  })
+
+  const [newServer, setNewServer] = useState<ServerType>({
+    cpu: CPU_LIST[0],
+    ram: RAM_CAPACITIES[0],
+    ssd: SSD_CAPACITIES[0],
+    hdd: HDD_CAPACITIES[0],
+    utilization: 40,
+  })
+
+  const lastUpdated = useRef<ServerType>(currentServer);
+
+  const currentCPU = currentServer.cpu;
+  const newCPU = newServer.cpu;
 
   const [singleComparison, setSingleComparison] = useState<boolean>(currentCPU === newCPU);
+  // TODO: fix this naming and combine?
   const [advancedSettings, setAdvancedSettings] = useState<boolean>(false);
+  const [advancedOptions, setAdvancedOptions] = useState<null | 'Mirror' | 'Scale'>(null);
 
   // Settings section
   const [workload, setWorkload] = useState<WorkloadType>(WORKLOAD_TYPES[0]);
@@ -88,28 +104,32 @@ export const BenchmarkProvider: React.FC<BenchmarkProviderProps> = ({ children }
   const [utilization, setUtilization] = useState<number>(40);
   const [country, setCountry] = useState<Country>(FIRST_COUNTRY);
 
+  const updateServer = (server: ServerType, updates: Partial<ServerType>) => {
+    if (server === currentServer) {
+      setCurrentServer(prev => ({ ...prev, ...updates }));
+      lastUpdated.current = currentServer;
+      return;
+    }
+    setNewServer(prev => ({ ...prev, ...updates }));
+    lastUpdated.current = newServer;
+  };
+
   const oldDieSize = CPU_DATA[currentCPU].DIE_SIZE;
   const newDieSize = CPU_DATA[newCPU].DIE_SIZE;
 
   const oldPerformanceIndicator = CPU_DATA[currentCPU][WORKLOAD_MAPPING[workload]] || 0;
   const newPerformanceIndicator = CPU_DATA[newCPU][WORKLOAD_MAPPING[workload]] || 0;
 
-  let utilizationScalingFactor = 1;
-
-  if (scaling == 'Utilization') {
-    utilizationScalingFactor = oldPerformanceIndicator / newPerformanceIndicator
-  }
-
-  const newUtilization = Math.min(100, utilization * utilizationScalingFactor)
+  const emissionsScaling = scaling == 'Emissions';
 
   // Old System
   const oldSystem = new System(
     oldDieSize / 100, // dieSize in cm^2
     oldPerformanceIndicator, // performanceIndicator
     lifetime, // lifetime in years
-    currentRAM, // dramCapacity in GB
-    currentSSD, // ssdCapacity in GB
-    currentHDD, // hddCapacity in GB
+    currentServer.ram, // dramCapacity in GB
+    currentServer.ssd, // ssdCapacity in GB
+    currentServer.hdd, // hddCapacity in GB
     CPU_DATA[currentCPU].TDP // cpuTdp in Watts
   );
 
@@ -118,20 +138,23 @@ export const BenchmarkProvider: React.FC<BenchmarkProviderProps> = ({ children }
     newDieSize / 100, // dieSize in cm^2
     newPerformanceIndicator, // performanceIndicator
     lifetime, // lifetime in years
-    newRAM, // dramCapacity in GB
-    newSSD, // ssdCapacity in GB
-    newHDD, // hddCapacity in GB
+    newServer.ram, // dramCapacity in GB
+    newServer.ssd, // ssdCapacity in GB
+    newServer.hdd, // hddCapacity in GB
     CPU_DATA[newCPU].TDP// cpuTdp in Watts
   );
+
+  console.log(currentServer.utilization, newServer.utilization);
 
   const comparison :ComparisonType = generateSystemsComparison(
     (singleComparison ? oldSystem : newSystem), // new system object
     oldSystem, // old system object
     timeHorizon, // time horizon
     country, // country string
-    utilization, // old system utilization percentage
-    newUtilization, // new system utilization percentage
-    GUPTA_MODEL // OPEX calculation model
+    currentServer.utilization, // old system utilization percentage
+    newServer.utilization, // new system utilization percentage
+    GUPTA_MODEL, // OPEX calculation model
+    emissionsScaling
   );
 
   const calculateIntersect = (singleComparison: boolean, oldSystemOpex: number[], newSystemOpex: number[]): { x:number, y:number } | false => {
@@ -160,7 +183,7 @@ export const BenchmarkProvider: React.FC<BenchmarkProviderProps> = ({ children }
   }
 
   const intersect = calculateIntersect(singleComparison, comparison.oldSystemOpex, comparison.newSystemOpex)
-  const breakEven = Math.ceil(intersect ? intersect.x + 2 : 3);
+  const breakEven = Math.ceil(intersect ? intersect.x + 1 : 3);
 
   const oldSystemOpex = comparison.oldSystemOpex.slice(0, breakEven);
   const newSystemOpex = comparison.newSystemOpex.slice(0, breakEven);
@@ -170,7 +193,7 @@ export const BenchmarkProvider: React.FC<BenchmarkProviderProps> = ({ children }
   const newPowerConsumption = comparison.newPowerConsumption;
 
   return (
-    <BenchmarkContext.Provider value={{ advancedSettings, setAdvancedSettings, scaling, setScaling, oldPowerConsumption, newPowerConsumption, opexBreakdown, capexBreakdown, setSingleComparison, oldPerformanceIndicator, newPerformanceIndicator, comparison, oldSystemOpex, singleComparison, newSystemOpex, intersect, breakEven, workload, utilization, country, setWorkload, setUtilization, setCountry, currentCPU, setCurrentCPU, newCPU, setNewCPU, currentRAM, currentSSD, newRAM, newSSD, setNewRAM, setNewSSD, setCurrentRAM, setCurrentSSD, currentHDD, setCurrentHDD, newHDD, setNewHDD }}>
+    <BenchmarkContext.Provider value={{ updateServer, currentServer, newServer, setCurrentServer, setNewServer, advancedSettings, setAdvancedSettings, advancedOptions, setAdvancedOptions, scaling, setScaling, oldPowerConsumption, newPowerConsumption, opexBreakdown, capexBreakdown, setSingleComparison, oldPerformanceIndicator, newPerformanceIndicator, comparison, oldSystemOpex, singleComparison, newSystemOpex, intersect, breakEven, workload, utilization, country, setWorkload, setUtilization, setCountry}}>
       {children}
     </BenchmarkContext.Provider>
   );

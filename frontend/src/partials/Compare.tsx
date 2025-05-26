@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import intel_xeon_logo from "../assets/intel_xeon_logo.png";
 import CPU_DATA from "../assets/data.ts";
 import { AMD, CPUEntry, CPUMake } from "./BenchmarkSettings.tsx";
-import { useBenchmarkContext } from "../utility/BenchmarkContext.tsx";
+import { ServerType, useBenchmarkContext, NEW_LABEL, OLD_LABEL } from "../utility/BenchmarkContext.tsx";
 import UP_ARROW from "../assets/up_arrow.svg";
 import logo2013 from "../assets/intel_logo/2013.webp";
 import logo2015 from "../assets/intel_logo/2015.jpg";
@@ -10,10 +10,7 @@ import logo2020 from "../assets/intel_logo/2020.png";
 import logo2024 from "../assets/intel_logo/2024.jpg";
 import amdLogo from "../assets/AMD_epyc_logo.svg";
 import close from "../assets/close.png";
-import ToggleSelection from "../utility/ToggleSelection.tsx";
-
-export const NEW_LABEL = "New Hardware";
-export const OLD_LABEL = "Current Hardware";
+import ValueSelection from "../utility/ValueSelection.tsx";
 
 export const RAM_CAPACITIES :number[] = [128, 512];
 export const SSD_CAPACITIES :number[] = [512, 2048];
@@ -44,41 +41,30 @@ const DISPLAY: Record<string, keyof CPUEntry> = {
   Release: "LAUNCH_YEAR",
 };
 
-interface ConfigType {
-  cpu: string;
-  ram: number;
-  ssd: number;
-  hdd: number;
-  setCPU: (value: string) => void;
-  setRAM: (value: number) => void;
-  setSSD: (value: number) => void;
-  setHDD: (value: number) => void;
-}
-
 // Reusable Dropdown Component
 interface DropdownProps {
   label: string;
-  thisConfig: ConfigType;
+  thisServer: ServerType;
+  otherServer: ServerType;
   showAdvanced: boolean;
-  otherConfig: ConfigType;
+  advancedOptions: null | 'Mirror' | 'Scale';
 }
 
-const Dropdown: React.FC<DropdownProps> = ({ label, thisConfig, otherConfig, showAdvanced }) => {
+const Dropdown: React.FC<DropdownProps> = ({ label, thisServer, otherServer, showAdvanced, advancedOptions}) => {
 
-  const { singleComparison, setSingleComparison} = useBenchmarkContext();
+  const { singleComparison, oldPerformanceIndicator, newPerformanceIndicator, updateServer, setSingleComparison} = useBenchmarkContext();
 
-  const specs_selected :CPUEntry = CPU_DATA[thisConfig.cpu];
-  const specs_compareTo :CPUEntry = CPU_DATA[otherConfig.cpu];
+  const specs_selected :CPUEntry = CPU_DATA[thisServer.cpu];
+  const specs_compareTo :CPUEntry = CPU_DATA[otherServer.cpu];
   const canToggle = label == NEW_LABEL;
-  const color = label == OLD_LABEL ? "Current" : "New";
 
   const [showDropdown, setShowDropdown] = useState<boolean>(canToggle ? false : true);
 
   // This is when new hardware is hidden, we set it equal to current hardware
   if (canToggle && !showDropdown) {
-    // thisConfig.setCPU(otherConfig.cpu)
-    // thisConfig.setRAM(otherConfig.ram)
-    // thisConfig.setHDD(otherConfig.hdd)
+    // thisServer.setCPU(otherServer.cpu)
+    // thisServer.setRAM(otherServer.ram)
+    // thisServer.setHDD(otherServer.hdd)
   }
 
   const toggleShow = () => {
@@ -87,8 +73,36 @@ const Dropdown: React.FC<DropdownProps> = ({ label, thisConfig, otherConfig, sho
     setShowDropdown(!showDropdown);
   }
 
-  const cpuLogo = getClosestLogo(specs_selected.LAUNCH_YEAR, specs_selected.MAKE);
+  const updateComponent = (updates: Partial<ServerType>) => {
+    // Always update the current server
+    updateServer(thisServer, updates);
 
+    if (advancedOptions === 'Mirror') {
+      updateServer(otherServer, updates);
+      return;
+    }
+
+    if (advancedOptions === 'Scale') {
+      const isNew = label === NEW_LABEL;
+      const base = isNew ? oldPerformanceIndicator : newPerformanceIndicator;
+      const target = isNew ? newPerformanceIndicator : oldPerformanceIndicator;
+      const ratio = base / target;
+
+      const scaleKeys: (keyof Pick<ServerType, 'ssd' | 'ram' | 'hdd'>)[] = ['ssd', 'ram', 'hdd'];
+
+      const scaledUpdates: Partial<ServerType> = {};
+
+      scaleKeys.forEach((key) => {
+        const value = updates[key];
+        if (value == undefined) return;
+        scaledUpdates[key] = Math.floor(value * ratio);
+      });
+
+      updateServer(otherServer, scaledUpdates);
+    }
+  };
+
+  const cpuLogo = getClosestLogo(specs_selected.LAUNCH_YEAR, specs_selected.MAKE);
 
   return (
     <div className="col-span-1 z-10 flex flex-col gap-2 font-light relative">
@@ -112,8 +126,8 @@ const Dropdown: React.FC<DropdownProps> = ({ label, thisConfig, otherConfig, sho
       <div className={`${showDropdown ? 'opacity-100' : 'opacity-0 pointer-events-none'} relative duration-150`}>
         <select
           className="block appearance-none text-base w-full bg-gray-100 border-2 border-gray-400 py-1 px-2 pr-8 rounded focus:outline-none focus:bg-white focus:border-gray-500"
-          value={thisConfig.cpu}
-          onChange={(e) => thisConfig.setCPU(e.target.value)}
+          value={thisServer.cpu}
+          onChange={(e) => updateComponent({cpu: (e.target.value)})}
         >
           {CPU_LIST.map((option) => {
             const year = CPU_DATA[option].LAUNCH_YEAR;
@@ -132,32 +146,20 @@ const Dropdown: React.FC<DropdownProps> = ({ label, thisConfig, otherConfig, sho
       </div>
       <div 
         className={`${showAdvanced ? 'h-64' : 'h-0 pointer-events-none' } overflow-hidden duration-300 justify-center ease-in-out flex flex-col gap-2 px-2`}>
-        <ToggleSelection<number>
+        <ValueSelection
           label="RAM(GB):"
-          options={RAM_CAPACITIES}
-          currentState={thisConfig.ram}
-          setState={thisConfig.setRAM}
-          extraInput={true}
-          flexGrow={true}
-          color={color}
+          currentState={thisServer.ram}
+          setState={(val) => updateComponent({ ram: val })}
         />
-        <ToggleSelection<number>
+        <ValueSelection
           label="SSD(GB):"
-          options={SSD_CAPACITIES}
-          currentState={thisConfig.ssd}
-          setState={thisConfig.setSSD}
-          extraInput={true}
-          flexGrow={true}
-          color={color}
+          currentState={thisServer.ssd}
+          setState={(val) => updateComponent({ ssd: val })}
         />
-        <ToggleSelection<number>
+        <ValueSelection
           label="HDD(GB):"
-          options={HDD_CAPACITIES}
-          currentState={thisConfig.hdd}
-          setState={thisConfig.setHDD}
-          extraInput={true}
-          flexGrow={true}
-          color={color}
+          currentState={thisServer.hdd}
+          setState={(val) => updateComponent({ hdd: val })}
         />
         <p>Mainboard:</p>
         <p>GPU:</p>
@@ -195,29 +197,7 @@ const Dropdown: React.FC<DropdownProps> = ({ label, thisConfig, otherConfig, sho
 export const CPU_LIST = Object.keys(CPU_DATA) as Array<string>;
 
 function Compare() {
-  const { newCPU, currentCPU, currentSSD, currentRAM, currentHDD, newSSD, newRAM, newHDD, advancedSettings, setNewCPU, setCurrentCPU, setAdvancedSettings, setNewHDD, setCurrentSSD, setCurrentHDD, setCurrentRAM, setNewSSD, setNewRAM} = useBenchmarkContext();
-
-  const currentConfig = {
-    cpu: currentCPU,
-    ram: currentRAM,
-    ssd: currentSSD,
-    hdd: currentHDD,
-    setCPU: setCurrentCPU,
-    setRAM: setCurrentRAM,
-    setSSD: setCurrentSSD,
-    setHDD: setCurrentHDD
-  }
-
-  const newConfig = {
-    cpu: newCPU,
-    ram: newRAM,
-    ssd: newSSD,
-    hdd: newHDD,
-    setCPU: setNewCPU,
-    setRAM: setNewRAM,
-    setSSD: setNewSSD,
-    setHDD: setNewHDD
-  }
+  const { currentServer, newServer, advancedSettings, setAdvancedSettings, advancedOptions, setAdvancedOptions } = useBenchmarkContext();
 
   return (
     <>
@@ -225,26 +205,60 @@ function Compare() {
         <Dropdown
           label={OLD_LABEL}
           showAdvanced={advancedSettings}
-          thisConfig={currentConfig}
-          otherConfig={newConfig}
+          thisServer={currentServer}
+          otherServer={newServer}
+          advancedOptions={advancedOptions}
         />
         <Dropdown
           label={NEW_LABEL}
           showAdvanced={advancedSettings}
-          thisConfig={newConfig}
-          otherConfig={currentConfig}
+          thisServer={newServer}
+          otherServer={currentServer}
+          advancedOptions={advancedOptions}
         />
       </div>
-      <div className={`w-11/12 mx-auto flex justify-evenly overflow-hidden rounded-md duration-300 items-center border-2 
-${advancedSettings ? 'h-12 px-4 py-2 border-blue mt-4' : 'h-0 pointer-events-none border-transparent'}`}>
-        <p>Mirror Extra Options</p>
-        <p>Scale RAM, SSD, HDD</p>
-        <p>Something else</p>
+
+      <div className={`w-11/12 mx-auto overflow-hidden rounded-md duration-300 border-2 
+        ${advancedSettings ? 'mt-4 border-blue px-4 py-2' : 'h-0 pointer-events-none border-transparent'}
+      `}>
+        {advancedSettings && (
+          <form className="flex justify-evenly items-center">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="scalingOption"
+                value="mirror"
+                checked={advancedOptions === 'Mirror'}
+                onChange={() => setAdvancedOptions('Mirror')}
+              />
+              <span>Mirror Resources</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="scalingOption"
+                value="scale"
+                checked={advancedOptions === 'Scale'}
+                onChange={() => setAdvancedOptions('Scale')}
+              />
+              <span>Scale Resources</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer text-gray-400 italic">
+              <input
+                type="radio"
+                name="scalingOption"
+                value="other"
+                disabled
+              />
+              <span>Something else</span>
+            </label>
+          </form>
+        )}
       </div>
+
       <div
-        className={`mx-auto cursor-pointer text-center hover:opacity-60 duration-0 px-3 py-2 text-medium font-semibold border-blue border-2 mt-4 rounded-xl ease-in-out w-fit
-${advancedSettings ?
-'border-transparent font-medium' : ''}`}
+        className={`mx-auto cursor-pointer text-center hover:opacity-60 duration-0 px-3 py-2 text-medium border-blue border-2 mt-4 rounded-xl ease-in-out w-fit
+          ${advancedSettings ? 'border-transparent font-medium' : 'font-semibold'}`}
         onMouseDown={() => setAdvancedSettings(!advancedSettings)}
       >
         <p>{advancedSettings ? 'Hide Advanced Options' : 'Show Advanced Options'}</p>

@@ -22,7 +22,8 @@ export function generateSystemsComparison(
   country: Country,
   oldSystemUtilization: number,
   newSystemUtilization: number,
-  opexCalculation: string
+  opexCalculation: string,
+  emissionsScaling: boolean,
 ): ComparisonType {
   // Generate OPEX and CAPEX for the new system
 
@@ -55,8 +56,13 @@ export function generateSystemsComparison(
   const performanceFactor =
     oldSystem.performanceIndicator / newSystem.performanceIndicator;
 
-  // Adjust new system OPEX based on performance factor
-  newSystemOpex = newSystemOpex.map((opex) => opex * performanceFactor);
+  if (emissionsScaling) {
+    // Adjust old system OPEX based on performance factor
+    oldSystemOpex = oldSystemOpex.map((opex) => opex / performanceFactor);
+  } else {
+    // Adjust new system OPEX based on performance factor
+    newSystemOpex = newSystemOpex.map((opex) => opex * performanceFactor);
+  }
 
   // Add CAPEX to OPEX for the new system at each time step
   newSystemOpex = newSystemOpex.map((opex) => opex + newSystemCapex);
