@@ -11,6 +11,7 @@ import { COUNTRY_NAMES } from '../assets/countries.js';
 import { ListItem, ListItemWithSearch } from "../utility/ListItems";
 import { WORKLOAD_EXPLANATIONS, SCALING_EXPLANATIONS } from "../utility/descriptions";
 import UtilizationInput from "../utility/UtilizationInput.js";
+import { useEffect } from "react";
 
 export const WORKLOAD_TYPES = ['SPECrate', 'SPECspeed', 'Sorting', 'TPC-H'] as const;
 export type WorkloadType = typeof WORKLOAD_TYPES[number];
@@ -94,12 +95,19 @@ function BenchmarkSettings() {
       const target = isNew ? newPerformanceIndicator : oldPerformanceIndicator;
 
       const ratio = target / base;
-      const scaledUtilization = clamp( updates.utilization as number * ratio, 0, 100)
+      const scaledUtilization = clamp( updates.utilization as number * ratio, 0, 100);
 
-      updateServer(otherServer, { utilization: scaledUtilization })
+      updateServer(otherServer, { utilization: scaledUtilization });
     }
   }
 
+  useEffect(() => {
+    if (scaling === "Utilization") {
+      const ratio = newPerformanceIndicator / oldPerformanceIndicator;
+      const scaledUtilization = clamp( currentServer.utilization as number * ratio, 0, 100);
+      updateServer(newServer, { utilization: scaledUtilization });
+    }
+  }, [scaling])
 
 return (
   <div className="flex z-30 flex-col text-medium font-medium flex-wrap px-4 py-2 gap-4">
@@ -157,7 +165,7 @@ return (
         />
       </div>
     </div>
-    <div className={`${advancedSettings ? 'h-0' : 'h-96'} duration-300 ease-in-out overflow-hidden relative`}>
+    <div className={`${advancedSettings ? 'h-96' : 'h-96'} duration-300 ease-in-out overflow-hidden relative`}>
       <GeoMap country={country} setCountry={setCountry} />
     </div>
   </div>

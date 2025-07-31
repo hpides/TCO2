@@ -49,8 +49,8 @@ const CPU_DATA : CPUs= {
   "Intel Xeon E7-4850 v4": {
     "MAKE": INTEL,
     "LAUNCH_YEAR": 2016,
-    "CORE_COUNT": 32,
-    "THREAD_COUNT": 16,
+    "CORE_COUNT": 16,
+    "THREAD_COUNT": 32,
     "TDP": 115,
     "SORTED_TUPLES_PER_S": 140307773.660298,
     "TPCH_RUNS_PER_H": 36.3625,
@@ -65,8 +65,8 @@ const CPU_DATA : CPUs= {
   "Intel Xeon Platinum 8180": {
     "MAKE": INTEL,
     "LAUNCH_YEAR": 2017,
-    "CORE_COUNT": 56,
-    "THREAD_COUNT": 28,
+    "CORE_COUNT": 28,
+    "THREAD_COUNT": 56,
     "TDP": 205,
     "SORTED_TUPLES_PER_S": 203679961.220965,
     "TPCH_RUNS_PER_H": 81.5934,
@@ -81,8 +81,8 @@ const CPU_DATA : CPUs= {
   "Intel Xeon Platinum 8259CL": {
     "MAKE": INTEL,
     "LAUNCH_YEAR": 2019,
-    "CORE_COUNT": 48,
-    "THREAD_COUNT": 24,
+    "CORE_COUNT": 24,
+    "THREAD_COUNT": 48,
     "TDP": 165,
     "SORTED_TUPLES_PER_S": 191378142.90516,
     "TPCH_RUNS_PER_H": 88.0331,
@@ -142,6 +142,23 @@ const CPU_DATA : CPUs= {
     "SPECINTrate_PER_TDP": 1.37714285714286,
     "DIE_SIZE": (2*763) // https://www.techpowerup.com/cpu-specs/xeon-platinum-8570.c3410
   },
+  "AMD EPYC 7451": {
+    "MAKE": AMD,
+    "LAUNCH_YEAR": 2017,
+    "CORE_COUNT": 24,
+    "THREAD_COUNT": 48,
+    "TDP": 180,
+    "SORTED_TUPLES_PER_S": null,
+    "TPCH_RUNS_PER_H": null,
+    "SPECINT_RATE": 151,
+    "SPECINT": 7.16,
+    "SORTED_TUPLES_PER_JOULE": null,
+    "TPCH_RUNS_PER_KJOULE": null,
+    "SPECINT_PER_TDP": 0.03977777777,
+    "SPECINTrate_PER_TDP": 0.83888888888,
+    "DIE_SIZE": 213 // https://www.techpowerup.com/cpu-specs/epyc-7601.c1920
+  },
+  // -----------------------------------------------------------------------------
   "AMD EPYC 7601": {
     "MAKE": AMD,
     "LAUNCH_YEAR": 2017,

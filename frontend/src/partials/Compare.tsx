@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import intel_xeon_logo from "../assets/intel_xeon_logo.png";
 import CPU_DATA from "../assets/data.ts";
 import { AMD, CPUEntry, CPUMake } from "./BenchmarkSettings.tsx";
@@ -33,6 +33,31 @@ const getClosestLogo = (launchYear: number | null, make: CPUMake): string => {
   const closestYear = availableYears.find(year => year <= launchYear);
   return closestYear ? YEAR_LOGOS[closestYear] : intel_xeon_logo;
 };
+
+const applyScaledUpdates = (
+  updates: Partial<ServerType>,
+  label: string,
+  NEW_LABEL: string,
+  oldPerformanceIndicator: number,
+  newPerformanceIndicator: number
+): Partial<ServerType> => {
+  const isNew = label === NEW_LABEL;
+  const base = isNew ? oldPerformanceIndicator : newPerformanceIndicator;
+  const target = isNew ? newPerformanceIndicator : oldPerformanceIndicator;
+  const ratio = base / target;
+
+  const scaleKeys: (keyof Pick<ServerType, 'ssd' | 'ram' | 'hdd'>)[] = ['ssd', 'ram', 'hdd'];
+  const scaledUpdates: Partial<ServerType> = {};
+
+  scaleKeys.forEach((key) => {
+    const value = updates[key];
+    if (value == undefined) return;
+    scaledUpdates[key] = Math.floor(value * ratio);
+  });
+
+  return scaledUpdates;
+};
+
 
 const DISPLAY: Record<string, keyof CPUEntry> = {
   Cores: "CORE_COUNT",
@@ -78,31 +103,48 @@ const Dropdown: React.FC<DropdownProps> = ({ label, thisServer, otherServer, sho
     updateServer(thisServer, updates);
 
     if (advancedOptions === 'Mirror') {
-      updateServer(otherServer, updates);
+      const { cpu, ...updatesWithoutCPU } = updates;
+      updateServer(otherServer, updatesWithoutCPU);
       return;
     }
 
     if (advancedOptions === 'Scale') {
-      const isNew = label === NEW_LABEL;
-      const base = isNew ? oldPerformanceIndicator : newPerformanceIndicator;
-      const target = isNew ? newPerformanceIndicator : oldPerformanceIndicator;
-      const ratio = base / target;
-
-      const scaleKeys: (keyof Pick<ServerType, 'ssd' | 'ram' | 'hdd'>)[] = ['ssd', 'ram', 'hdd'];
-
-      const scaledUpdates: Partial<ServerType> = {};
-
-      scaleKeys.forEach((key) => {
-        const value = updates[key];
-        if (value == undefined) return;
-        scaledUpdates[key] = Math.floor(value * ratio);
-      });
-
+      const scaledUpdates = applyScaledUpdates(
+        updates,
+        label,
+        NEW_LABEL,
+        oldPerformanceIndicator,
+        newPerformanceIndicator
+      );
       updateServer(otherServer, scaledUpdates);
+      return;
     }
   };
 
   const cpuLogo = getClosestLogo(specs_selected.LAUNCH_YEAR, specs_selected.MAKE);
+
+  useEffect(() => {
+    if (label !== NEW_LABEL) return; // only update new cpu
+
+    if (advancedOptions === 'Scale') {
+      const scaledUpdates = applyScaledUpdates(
+        otherServer,
+        label,
+        OLD_LABEL, //swap otherwise the scaling goes in the opposite direction
+        oldPerformanceIndicator,
+        newPerformanceIndicator
+      );
+      updateServer(thisServer, scaledUpdates);
+      return;
+    }
+
+    if (advancedOptions === 'Mirror') {
+      const { cpu, ...updatesWithoutCPU } = otherServer;
+      updateServer(thisServer, updatesWithoutCPU);
+      return;
+    }
+
+  }, [advancedOptions])
 
   return (
     <div className="col-span-1 z-10 flex flex-col gap-2 font-light relative">
@@ -227,7 +269,15 @@ function Compare() {
               <input
                 type="radio"
                 name="scalingOption"
-                value="mirror"
+                checked={advancedOptions === null}
+                onChange={() => setAdvancedOptions(null)}
+              />
+              <span>None</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="scalingOption"
                 checked={advancedOptions === 'Mirror'}
                 onChange={() => setAdvancedOptions('Mirror')}
               />
@@ -237,20 +287,10 @@ function Compare() {
               <input
                 type="radio"
                 name="scalingOption"
-                value="scale"
                 checked={advancedOptions === 'Scale'}
                 onChange={() => setAdvancedOptions('Scale')}
               />
               <span>Scale Resources</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer text-gray-400 italic">
-              <input
-                type="radio"
-                name="scalingOption"
-                value="other"
-                disabled
-              />
-              <span>Something else</span>
             </label>
           </form>
         )}
