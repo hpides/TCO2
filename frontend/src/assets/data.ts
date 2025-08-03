@@ -29,7 +29,7 @@ export const CPU_METRICS: Record<string, CPUMetric> = {
   "SPECrate per TDP": { label: "SPECINTrate_PER_TDP", unit: "Score/Watt", tofixed: 2, delimeter: true }
 };
 
-const CPU_DATA : CPUs= {
+const CPU_DATA :CPUs = {
   "Intel Xeon E7-4880 v2": {
     "MAKE": INTEL,
     "LAUNCH_YEAR": 2014,
@@ -142,6 +142,22 @@ const CPU_DATA : CPUs= {
     "SPECINTrate_PER_TDP": 1.37714285714286,
     "DIE_SIZE": (2*763) // https://www.techpowerup.com/cpu-specs/xeon-platinum-8570.c3410
   },
+  "AMD EPYC 7371": {
+    "MAKE": AMD,
+    "LAUNCH_YEAR": 2018,
+    "CORE_COUNT": 16,
+    "THREAD_COUNT": 32,
+    "TDP": 200,
+    "SORTED_TUPLES_PER_S": null,
+    "TPCH_RUNS_PER_H": null,
+    "SPECINT_RATE": 108,
+    "SPECINT": 8.34,
+    "SORTED_TUPLES_PER_JOULE": null,
+    "TPCH_RUNS_PER_KJOULE": null,
+    "SPECINT_PER_TDP": 0.0417,
+    "SPECINTrate_PER_TDP": 0.54,
+    "DIE_SIZE": 213
+  },
   "AMD EPYC 7451": {
     "MAKE": AMD,
     "LAUNCH_YEAR": 2017,
@@ -150,78 +166,61 @@ const CPU_DATA : CPUs= {
     "TDP": 180,
     "SORTED_TUPLES_PER_S": null,
     "TPCH_RUNS_PER_H": null,
-    "SPECINT_RATE": 151,
-    "SPECINT": 7.16,
+    "SPECINT_RATE": 119,
+    "SPECINT": null,
     "SORTED_TUPLES_PER_JOULE": null,
     "TPCH_RUNS_PER_KJOULE": null,
-    "SPECINT_PER_TDP": 0.03977777777,
-    "SPECINTrate_PER_TDP": 0.83888888888,
-    "DIE_SIZE": 213 // https://www.techpowerup.com/cpu-specs/epyc-7601.c1920
+    "SPECINT_PER_TDP": null,
+    "SPECINTrate_PER_TDP": null,
+    "DIE_SIZE": 213
   },
-  // -----------------------------------------------------------------------------
-  "AMD EPYC 7601": {
-    "MAKE": AMD,
-    "LAUNCH_YEAR": 2017,
-    "CORE_COUNT": 32,
-    "THREAD_COUNT": 64,
-    "TDP": 180,
-    "SORTED_TUPLES_PER_S": null,
-    "TPCH_RUNS_PER_H": null,
-    "SPECINT_RATE": 151,
-    "SPECINT": 7.16,
-    "SORTED_TUPLES_PER_JOULE": null,
-    "TPCH_RUNS_PER_KJOULE": null,
-    "SPECINT_PER_TDP": 0.03977777777,
-    "SPECINTrate_PER_TDP": 0.83888888888,
-    "DIE_SIZE": 213 // https://www.techpowerup.com/cpu-specs/epyc-7601.c1920
-  },
-  "AMD EPYC 7402P": {
+  "AMD EPYC 7352": {
     "MAKE": AMD,
     "LAUNCH_YEAR": 2019,
     "CORE_COUNT": 24,
     "THREAD_COUNT": 48,
-    "TDP": 180,
-    "SORTED_TUPLES_PER_S": null,
-    "TPCH_RUNS_PER_H": null,
-    "SPECINT_RATE": 170,
-    "SPECINT": 8.65,
-    "SORTED_TUPLES_PER_JOULE": null,
-    "TPCH_RUNS_PER_KJOULE": null,
-    "SPECINT_PER_TDP": 0.04805555555,
-    "SPECINTrate_PER_TDP": 0.94444444444,
-    "DIE_SIZE": 74 // https://www.techpowerup.com/cpu-specs/epyc-7402p.c2261
-  },
-  "AMD EPYC 7302P": {
-    "MAKE": AMD,
-    "LAUNCH_YEAR": 2019,
-    "CORE_COUNT": 16,
-    "THREAD_COUNT": 32,
     "TDP": 155,
     "SORTED_TUPLES_PER_S": null,
     "TPCH_RUNS_PER_H": null,
-    "SPECINT_RATE": 118,
-    "SPECINT": 8.55,
+    "SPECINT_RATE": 176,
+    "SPECINT": 8.68,
     "SORTED_TUPLES_PER_JOULE": null,
     "TPCH_RUNS_PER_KJOULE": null,
-    "SPECINT_PER_TDP": 0.05516129032,
-    "SPECINTrate_PER_TDP": 0.76129032258,
-    "DIE_SIZE": 74 // https://www.techpowerup.com/cpu-specs/epyc-7302p.c2262
+    "SPECINT_PER_TDP": null,
+    "SPECINTrate_PER_TDP": null,
+    "DIE_SIZE": 74*3 // 3 cores + IOD but not including IOD
   },
-  "AMD EPYC 7513": {
+  "AMD EPYC 7552": {
     "MAKE": AMD,
-    "LAUNCH_YEAR": 2021,
-    "CORE_COUNT": 32,
-    "THREAD_COUNT": 64,
+    "LAUNCH_YEAR": 2019,
+    "CORE_COUNT": 48,
+    "THREAD_COUNT": 96,
     "TDP": 200,
     "SORTED_TUPLES_PER_S": null,
     "TPCH_RUNS_PER_H": null,
-    "SPECINT_RATE": 252,
-    "SPECINT": 12.3,
+    "SPECINT_RATE": 295,
+    "SPECINT": 8.87,
     "SORTED_TUPLES_PER_JOULE": null,
     "TPCH_RUNS_PER_KJOULE": null,
-    "SPECINT_PER_TDP": 0.0615,
-    "SPECINTrate_PER_TDP": 1.26,
-    "DIE_SIZE": (8*81) //https://www.techpowerup.com/cpu-specs/epyc-7513.c2381
+    "SPECINT_PER_TDP": null,
+    "SPECINTrate_PER_TDP": null,
+    "DIE_SIZE": 74*4 // 4 cores + IOD but not including IOD
+  },
+  "AMD EPYC 7573X": {
+    "MAKE": AMD,
+    "LAUNCH_YEAR": 2022,
+    "CORE_COUNT": 32,
+    "THREAD_COUNT": 64,
+    "TDP": 280,
+    "SORTED_TUPLES_PER_S": null,
+    "TPCH_RUNS_PER_H": null,
+    "SPECINT_RATE": 303,
+    "SPECINT": 12.81,
+    "SORTED_TUPLES_PER_JOULE": null,
+    "TPCH_RUNS_PER_KJOULE": null,
+    "SPECINT_PER_TDP": null,
+    "SPECINTrate_PER_TDP": null,
+    "DIE_SIZE": 8*81
   },
   "AMD EPYC 7773X": {
     "MAKE": AMD,
@@ -235,9 +234,9 @@ const CPU_DATA : CPUs= {
     "SPECINT": 12.3,
     "SORTED_TUPLES_PER_JOULE": null,
     "TPCH_RUNS_PER_KJOULE": null,
-    "SPECINT_PER_TDP": 0.04392857142,
-    "SPECINTrate_PER_TDP": 1.45,
-    "DIE_SIZE": (8*81) //https://www.techpowerup.com/cpu-specs/epyc-7773x.c2759
+    "SPECINT_PER_TDP": null,
+    "SPECINTrate_PER_TDP": null,
+    "DIE_SIZE": 8*81
   },
   "AMD EPYC 9554": {
     "MAKE": AMD,
@@ -251,9 +250,9 @@ const CPU_DATA : CPUs= {
     "SPECINT": 14.9,
     "SORTED_TUPLES_PER_JOULE": null,
     "TPCH_RUNS_PER_KJOULE": null,
-    "SPECINT_PER_TDP": 0.04138888888,
-    "SPECINTrate_PER_TDP": 1.81944444444,
-    "DIE_SIZE": (8*72) // https://www.techpowerup.com/cpu-specs/epyc-9554.c2930
+    "SPECINT_PER_TDP": null,
+    "SPECINTrate_PER_TDP": null,
+    "DIE_SIZE": 8*72
   }
 }
 
