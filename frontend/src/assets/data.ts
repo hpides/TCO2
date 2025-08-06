@@ -29,6 +29,78 @@ export const CPU_METRICS: Record<string, CPUMetric> = {
   "SPECrate per TDP": { label: "SPECINTrate_PER_TDP", unit: "Score/Watt", tofixed: 2, delimeter: true }
 };
 
+export interface ServerPresetType {
+  specific_name: string;
+  instance: 'EC2' | 'Azure';
+  cpu: keyof CPUs;
+  ram: number;
+  ssd: number;
+  hdd: number;
+}
+
+export interface ServerPresets {
+  [key: string]: ServerPresetType;
+}
+
+export const SERVER_PRESETS : ServerPresets = {
+  "C5": {
+    specific_name: "c5d.12xlarge",
+    cpu: "Intel Xeon Platinum 8180",
+    ram: 96,
+    ssd: 2*900,
+    hdd: 0,
+    instance: "EC2"
+  },
+  "R5": {
+    specific_name: "r5d.12xlarge",
+    cpu: "Intel Xeon Platinum 8259CL",
+    ram: 384,
+    ssd: 2*900,
+    hdd: 0,
+    instance: "EC2"
+  },
+  "M5n": {
+    specific_name: "m5dn.12xlarge",
+    cpu: "Intel Xeon Platinum 8259CL",
+    ram: 192,
+    ssd: 2*900,
+    hdd: 0,
+    instance: "EC2"
+  },
+  "M6a": {
+    specific_name: "m6a.24xlarge",
+    cpu: "AMD EPYC 7552",
+    ram: 384,
+    ssd: 0,
+    hdd: 0,
+    instance: "EC2"
+  },
+  "M7a": {
+    specific_name: "m7a.32xlarge",
+    cpu: "AMD EPYC 9554",
+    ram: 512,
+    ssd: 0,
+    hdd: 0,
+    instance: "EC2"
+  },
+  "Dasv5": {
+    specific_name: "Standard_D96as_v5",
+    cpu: "AMD EPYC 7773X",
+    ram: 384,
+    ssd: 0,
+    hdd: 0,
+    instance: "Azure"
+  },
+  "Dasv6": {
+    specific_name: "Standard_D96as_v6",
+    cpu: "AMD EPYC 9554",
+    ram: 384,
+    ssd: 0,
+    hdd: 0,
+    instance: "Azure"
+  }
+}
+
 const CPU_DATA :CPUs = {
   "Intel Xeon E7-4880 v2": {
     "MAKE": INTEL,

@@ -38,8 +38,8 @@ export interface CPUEntry {
   SPECINT: PerformanceType;
   SORTED_TUPLES_PER_JOULE: number | null;
   TPCH_RUNS_PER_KJOULE: number | null;
-  SPECINT_PER_TDP: number;
-  SPECINTrate_PER_TDP: number;
+  SPECINT_PER_TDP: number | null;
+  SPECINTrate_PER_TDP: number | null;
   DIE_SIZE: number;
 }
 

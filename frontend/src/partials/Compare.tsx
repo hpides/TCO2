@@ -11,10 +11,13 @@ import logo2024 from "../assets/intel_logo/2024.jpg";
 import amdLogo from "../assets/AMD_epyc_logo.svg";
 import close from "../assets/close.png";
 import ValueSelection from "../utility/ValueSelection.tsx";
+import ServerPresetsComponent from "./ServerPresets.tsx";
+import { ServerPresets } from "../assets/data.ts";
 
 export const RAM_CAPACITIES :number[] = [128, 512];
 export const SSD_CAPACITIES :number[] = [512, 2048];
 export const HDD_CAPACITIES :number[] = [0, 4096];
+export const CUSTOM = 'Custom' as const;
 
 const YEAR_LOGOS: Record<number, string> = {
   2013: logo2013,
@@ -84,6 +87,7 @@ const Dropdown: React.FC<DropdownProps> = ({ label, thisServer, otherServer, sho
   const canToggle = label == NEW_LABEL;
 
   const [showDropdown, setShowDropdown] = useState<boolean>(canToggle ? false : true);
+  const [presetValue, setPresetValue] = useState<keyof ServerPresets | typeof CUSTOM>(CUSTOM)
 
   // This is when new hardware is hidden, we set it equal to current hardware
   if (canToggle && !showDropdown) {
@@ -98,10 +102,12 @@ const Dropdown: React.FC<DropdownProps> = ({ label, thisServer, otherServer, sho
     setShowDropdown(!showDropdown);
   }
 
-  const updateComponent = (updates: Partial<ServerType>) => {
+  const updateComponent = (updates: Partial<ServerType>, preset: false | string = false) => {
     // Always update the current server
     updateServer(thisServer, updates);
+    setPresetValue(preset ? preset : CUSTOM);
 
+    // TODO: fix bug here when changing presets after scaling option
     if (advancedOptions === 'Mirror') {
       const { cpu, ...updatesWithoutCPU } = updates;
       updateServer(otherServer, updatesWithoutCPU);
@@ -147,10 +153,10 @@ const Dropdown: React.FC<DropdownProps> = ({ label, thisServer, otherServer, sho
   }, [advancedOptions])
 
   return (
-    <div className="col-span-1 z-10 flex flex-col gap-2 font-light relative">
+    <div className="col-span-1 flex flex-col gap-2 font-light relative">
       <div
         onClick={toggleShow}
-        className={`${showDropdown ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'} z-10 cursor-pointer duration-150 absolute top-0 left-0 w-full h-full bg-white border-2 border-slate-400 rounded-xl flex items-center justify-center group hover:border-slate-300`}>
+        className={`${showDropdown ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'} z-20 cursor-pointer duration-150 absolute top-0 left-0 w-full h-full bg-white border-2 border-slate-400 rounded-xl flex items-center justify-center group hover:border-slate-300`}>
         <p className="text-6xl text-slate-500 group-hover:text-slate-400 duration-150">+</p>
       </div>
       <div className="flex justify-between">
@@ -165,6 +171,7 @@ const Dropdown: React.FC<DropdownProps> = ({ label, thisServer, otherServer, sho
             className="h-5" />
         </button>
       </div>
+      <ServerPresetsComponent presetValue={presetValue} updateServer={updateComponent} />
       <div className={`${showDropdown ? 'opacity-100' : 'opacity-0 pointer-events-none'} relative duration-150`}>
         <select
           className="block appearance-none text-base w-full bg-gray-100 border-2 border-gray-400 py-1 px-2 pr-8 rounded focus:outline-none focus:bg-white focus:border-gray-500"

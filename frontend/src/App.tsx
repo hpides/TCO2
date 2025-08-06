@@ -53,9 +53,6 @@ function App() {
               >Read Paper</a>
             </p>
             <p className='text-cyan-700 underline underline-offset-2 text-lg text-center'>
-              Configuration Presets
-            </p>
-            <p className='text-cyan-700 underline underline-offset-2 text-lg text-center'>
               Read More
             </p>
           </div>

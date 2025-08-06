@@ -14,7 +14,7 @@ interface ToggleSelectionProps<T> {
   flexGrow?: boolean;
   disabled?: Array<T>;
   color?: 'New' | 'Current' | 'None';
-  zIndex?: string; // I cannot find another workaround...remove this and see tooltip interaction
+  zIndex?: string; // I cannot find another workaround...remove this and see hover tooltip interaction
   setState: (value: T) => void;
 }
 
