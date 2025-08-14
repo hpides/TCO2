@@ -148,7 +148,7 @@ const GeoMap: React.FC<GeomapProps> = ({ country, setCountry }) => {
           {/* @tsignore */}
           <GeoJSON data={COUNTRY_GEOJSON.features} onEachFeature={onEachFeature} style={style} />
         </MapContainer>
-        <div className="absolute z-10 bottom-4 right-4 bg-white p-2 rounded-md border-black border">
+        <div className="absolute z-10 top-4 right-4 bg-white p-2 rounded-md border-black border">
           <p className="text-sm">Grid Carbon Intensity (gCO₂/kWh)</p>
           <div className="flex h-3 rounded-2xl overflow-hidden w-full">
             {

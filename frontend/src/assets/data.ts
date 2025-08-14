@@ -31,11 +31,12 @@ export const CPU_METRICS: Record<string, CPUMetric> = {
 
 export interface ServerPresetType {
   specific_name: string;
-  instance: 'EC2' | 'Azure';
+  instance: 'AWS EC2' | 'Azure';
   cpu: keyof CPUs;
   ram: number;
   ssd: number;
   hdd: number;
+  price: number;
 }
 
 export interface ServerPresets {
@@ -43,60 +44,67 @@ export interface ServerPresets {
 }
 
 export const SERVER_PRESETS : ServerPresets = {
-  "C5": {
+  "c5d.12xlarge": {
     specific_name: "c5d.12xlarge",
     cpu: "Intel Xeon Platinum 8180",
     ram: 96,
     ssd: 2*900,
     hdd: 0,
-    instance: "EC2"
+    price: 2.66,
+    instance: "AWS EC2",
   },
-  "R5": {
+  "r5d.12xlarge": {
     specific_name: "r5d.12xlarge",
     cpu: "Intel Xeon Platinum 8259CL",
     ram: 384,
     ssd: 2*900,
     hdd: 0,
-    instance: "EC2"
+    price: 4.15,
+    instance: "AWS EC2"
   },
-  "M5n": {
+  "m5dn.12xlarge": {
     specific_name: "m5dn.12xlarge",
     cpu: "Intel Xeon Platinum 8259CL",
     ram: 192,
     ssd: 2*900,
     hdd: 0,
-    instance: "EC2"
+    price: 3.89,
+    instance: "AWS EC2"
   },
-  "M6a": {
+  "m6a.24xlarge": {
     specific_name: "m6a.24xlarge",
     cpu: "AMD EPYC 7552",
     ram: 384,
     ssd: 0,
     hdd: 0,
-    instance: "EC2"
+    price: 4.97,
+    instance: "AWS EC2"
   },
-  "M7a": {
+  "m7a.32xlarge": {
     specific_name: "m7a.32xlarge",
     cpu: "AMD EPYC 9554",
     ram: 512,
     ssd: 0,
     hdd: 0,
-    instance: "EC2"
+    price: 8.89,
+    instance: "AWS EC2"
   },
-  "Dasv5": {
-    specific_name: "Standard_D96as_v5",
+  "D96as_v5": {
+    specific_name: "D96as_v5",
     cpu: "AMD EPYC 7773X",
     ram: 384,
     ssd: 0,
     hdd: 0,
+    price: 4.99,
     instance: "Azure"
   },
-  "Dasv6": {
-    specific_name: "Standard_D96as_v6",
+  "D96as_v6": {
+    specific_name: "D96as_v6",
     cpu: "AMD EPYC 9554",
     ram: 384,
     ssd: 0,
     hdd: 0,
+    price: 5.27,
     instance: "Azure"
   }
 }
@@ -108,7 +116,7 @@ const CPU_DATA :CPUs = {
     "CORE_COUNT": 15,
     "THREAD_COUNT": 30,
     "TDP": 130,
-    "SORTED_TUPLES_PER_S": 125118509.906611,
+    "SORTED_TUPLES_PER_S": 125118509,
     "TPCH_RUNS_PER_H": 39.7660,
     "SPECINT_RATE": 61.111111111111,
     "SPECINT": 6.02222222222222,
@@ -124,7 +132,7 @@ const CPU_DATA :CPUs = {
     "CORE_COUNT": 16,
     "THREAD_COUNT": 32,
     "TDP": 115,
-    "SORTED_TUPLES_PER_S": 140307773.660298,
+    "SORTED_TUPLES_PER_S": 140307773,
     "TPCH_RUNS_PER_H": 36.3625,
     "SPECINT_RATE": 109.25,
     "SPECINT": 6.66666666666667,
@@ -140,7 +148,7 @@ const CPU_DATA :CPUs = {
     "CORE_COUNT": 28,
     "THREAD_COUNT": 56,
     "TDP": 205,
-    "SORTED_TUPLES_PER_S": 203679961.220965,
+    "SORTED_TUPLES_PER_S": 203679961,
     "TPCH_RUNS_PER_H": 81.5934,
     "SPECINT_RATE": 141,
     "SPECINT": 9.324,
@@ -156,7 +164,7 @@ const CPU_DATA :CPUs = {
     "CORE_COUNT": 24,
     "THREAD_COUNT": 48,
     "TDP": 165,
-    "SORTED_TUPLES_PER_S": 191378142.90516,
+    "SORTED_TUPLES_PER_S": 191378142,
     "TPCH_RUNS_PER_H": 88.0331,
     "SPECINT_RATE": 139,
     "SPECINT": 10.3,
@@ -172,7 +180,7 @@ const CPU_DATA :CPUs = {
     "CORE_COUNT": 32,
     "THREAD_COUNT": 64,
     "TDP": 205,
-    "SORTED_TUPLES_PER_S": 303998667.7562,
+    "SORTED_TUPLES_PER_S": 303998667,
     "TPCH_RUNS_PER_H": 114.5736,
     "SPECINT_RATE": 215,
     "SPECINT": 11.6777,
@@ -188,7 +196,7 @@ const CPU_DATA :CPUs = {
     "CORE_COUNT": 56,
     "THREAD_COUNT": 112,
     "TDP": 350,
-    "SORTED_TUPLES_PER_S": 488892652.275884,
+    "SORTED_TUPLES_PER_S": 488892652,
     "TPCH_RUNS_PER_H": 167.9686,
     "SPECINT_RATE": 443.5,
     "SPECINT": 14.725,
@@ -204,7 +212,7 @@ const CPU_DATA :CPUs = {
     "CORE_COUNT": 56,
     "THREAD_COUNT": 112,
     "TDP": 350,
-    "SORTED_TUPLES_PER_S": 519150568.953982,
+    "SORTED_TUPLES_PER_S": 519150568,
     "TPCH_RUNS_PER_H": 179.9952,
     "SPECINT_RATE": 482,
     "SPECINT": 14.8,

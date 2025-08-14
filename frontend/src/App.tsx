@@ -46,14 +46,17 @@ function App() {
           <h1 className='text-3xl text-center font-medium'>TCO<sub>2</sub>: Total CO<sub>2</sub> Cost of Ownership</h1>
           <h2 className='text-lg text-center font-light text-slate-600'>Analyzing the Carbon Footprint of Database Server Replacements</h2>
           <div className='flex mx-auto gap-8'>
-            <p className='text-cyan-700 underline underline-offset-2 text-lg text-center'>
+            <p className='text-cyan-700 underline underline-offset-5 text-lg text-center'>
               <a
-                href='https://hpi.de/rabl/news/2024/paper-on-ecological-efficiency-of-database-servers-accepted-at-cidr-2025.html'
+                href='https://hpi.de/oldsite/fileadmin/user_upload/fachgebiete/rabl/publications/2025/p2059-rabl.pdf'
                 target='_blank'
-              >Read Paper</a>
+              >TCO<sub>2</sub> Paper</a>
             </p>
-            <p className='text-cyan-700 underline underline-offset-2 text-lg text-center'>
-              Read More
+            <p className='text-cyan-700 underline underline-offset-5 text-lg text-center'>
+              <a
+                href='https://hpi.de/oldsite/fileadmin/user_upload/fachgebiete/rabl/publications/2025/serverlifecycles_cidr2025.pdf'
+                target='_blank'
+              >Server Lifecycle Paper</a>
             </p>
           </div>
         </section>

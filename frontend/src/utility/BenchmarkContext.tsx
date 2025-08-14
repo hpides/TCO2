@@ -24,7 +24,7 @@ const lifetime = 20;
 // const hddCapacity = 0; // in GB
 
 export interface ServerType {
-  cpu: string;
+  cpu: keyof typeof CPU_DATA;
   ram: number;
   ssd: number;
   hdd: number;
@@ -48,6 +48,7 @@ interface BenchmarkContextType {
   setUtilization: (value: number) => void;
   country: Country;
   setCountry: (value: Country) => void;
+  getPerformanceIndicator: (cpu: keyof typeof CPU_DATA) => number;
   comparison: ComparisonType;
   oldSystemOpex: number[];
   newSystemOpex: number[];
@@ -157,6 +158,10 @@ export const BenchmarkProvider: React.FC<BenchmarkProviderProps> = ({ children }
     emissionsScaling
   );
 
+  const getPerformanceIndicator = (cpu: keyof typeof CPU_DATA): number => {
+    return CPU_DATA[cpu][WORKLOAD_MAPPING[workload]] || 0;
+  }
+
   const calculateIntersect = (singleComparison: boolean, oldSystemOpex: number[], newSystemOpex: number[]): { x:number, y:number } | false => {
     const embodiedLine = newSystemOpex[0];
     const l = oldSystemOpex.length;
@@ -193,7 +198,7 @@ export const BenchmarkProvider: React.FC<BenchmarkProviderProps> = ({ children }
   const newPowerConsumption = comparison.newPowerConsumption;
 
   return (
-    <BenchmarkContext.Provider value={{ updateServer, currentServer, newServer, setCurrentServer, setNewServer, advancedSettings, setAdvancedSettings, advancedOptions, setAdvancedOptions, scaling, setScaling, oldPowerConsumption, newPowerConsumption, opexBreakdown, capexBreakdown, setSingleComparison, oldPerformanceIndicator, newPerformanceIndicator, comparison, oldSystemOpex, singleComparison, newSystemOpex, intersect, breakEven, workload, utilization, country, setWorkload, setUtilization, setCountry}}>
+    <BenchmarkContext.Provider value={{ updateServer, currentServer, newServer, setCurrentServer, setNewServer, advancedSettings, setAdvancedSettings, advancedOptions, setAdvancedOptions, scaling, setScaling, oldPowerConsumption, newPowerConsumption, opexBreakdown, capexBreakdown, setSingleComparison, oldPerformanceIndicator, newPerformanceIndicator, getPerformanceIndicator, comparison, oldSystemOpex, singleComparison, newSystemOpex, intersect, breakEven, workload, utilization, country, setWorkload, setUtilization, setCountry}}>
       {children}
     </BenchmarkContext.Provider>
   );

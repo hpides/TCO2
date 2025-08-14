@@ -37,17 +37,21 @@ const getClosestLogo = (launchYear: number | null, make: CPUMake): string => {
   return closestYear ? YEAR_LOGOS[closestYear] : intel_xeon_logo;
 };
 
+const isOnlyCpu = (obj: Partial<ServerType>): obj is { cpu: string } => {
+  return (
+    Object.keys(obj).length === 1 &&
+    "cpu" in obj
+  );
+}
+
 const applyScaledUpdates = (
   updates: Partial<ServerType>,
-  label: string,
-  NEW_LABEL: string,
-  oldPerformanceIndicator: number,
-  newPerformanceIndicator: number
+  thisPerformanceIndicator: number,
+  otherPerformanceIndicator: number,
 ): Partial<ServerType> => {
-  const isNew = label === NEW_LABEL;
-  const base = isNew ? oldPerformanceIndicator : newPerformanceIndicator;
-  const target = isNew ? newPerformanceIndicator : oldPerformanceIndicator;
-  const ratio = base / target;
+
+  const ratio = thisPerformanceIndicator / otherPerformanceIndicator;
+
 
   const scaleKeys: (keyof Pick<ServerType, 'ssd' | 'ram' | 'hdd'>)[] = ['ssd', 'ram', 'hdd'];
   const scaledUpdates: Partial<ServerType> = {};
@@ -80,7 +84,7 @@ interface DropdownProps {
 
 const Dropdown: React.FC<DropdownProps> = ({ label, thisServer, otherServer, showAdvanced, advancedOptions}) => {
 
-  const { singleComparison, oldPerformanceIndicator, newPerformanceIndicator, updateServer, setSingleComparison} = useBenchmarkContext();
+  const { singleComparison, updateServer, setSingleComparison, setAdvancedOptions, getPerformanceIndicator} = useBenchmarkContext();
 
   const specs_selected :CPUEntry = CPU_DATA[thisServer.cpu];
   const specs_compareTo :CPUEntry = CPU_DATA[otherServer.cpu];
@@ -107,20 +111,49 @@ const Dropdown: React.FC<DropdownProps> = ({ label, thisServer, otherServer, sho
     updateServer(thisServer, updates);
     setPresetValue(preset ? preset : CUSTOM);
 
-    // TODO: fix bug here when changing presets after scaling option
+    // if a new preset is picked, we dont want to scale anything.
+    // advancedOptions state is set before this, but react doesn't update
+    // in time for it to be detected here :(
+    if (preset) return;
+
+    const onlyCPU = isOnlyCpu(updates);
+
+    if (onlyCPU) {
+      updates = {
+        cpu: updates.cpu,
+        ram: thisServer.ram,
+        ssd: thisServer.ssd,
+        hdd: thisServer.hdd,
+      }
+    }
+
     if (advancedOptions === 'Mirror') {
       const { cpu, ...updatesWithoutCPU } = updates;
       updateServer(otherServer, updatesWithoutCPU);
       return;
     }
 
-    if (advancedOptions === 'Scale') {
+    // the lower two if statements are the same, except the servers are swapped
+    // depending on what should be scaled when the CPU or the hardware is changed
+
+    // if the CPU is changed, we want to update the changed CPU's server hardware,
+    // not the other one
+    if (advancedOptions === 'Scale' && onlyCPU) {
       const scaledUpdates = applyScaledUpdates(
         updates,
-        label,
-        NEW_LABEL,
-        oldPerformanceIndicator,
-        newPerformanceIndicator
+        getPerformanceIndicator(otherServer.cpu),
+        getPerformanceIndicator(updates.cpu || thisServer.cpu),
+      );
+      updateServer(thisServer, scaledUpdates);
+      return;
+    }
+
+    // if the hardware is changed, we want to scale the other server's hardware
+    if (advancedOptions === 'Scale' && !onlyCPU) {
+      const scaledUpdates = applyScaledUpdates(
+        updates,
+        getPerformanceIndicator(updates.cpu || thisServer.cpu),
+        getPerformanceIndicator(otherServer.cpu),
       );
       updateServer(otherServer, scaledUpdates);
       return;
@@ -135,10 +168,8 @@ const Dropdown: React.FC<DropdownProps> = ({ label, thisServer, otherServer, sho
     if (advancedOptions === 'Scale') {
       const scaledUpdates = applyScaledUpdates(
         otherServer,
-        label,
-        OLD_LABEL, //swap otherwise the scaling goes in the opposite direction
-        oldPerformanceIndicator,
-        newPerformanceIndicator
+        getPerformanceIndicator(thisServer.cpu),
+        getPerformanceIndicator(otherServer.cpu),
       );
       updateServer(thisServer, scaledUpdates);
       return;
@@ -171,7 +202,7 @@ const Dropdown: React.FC<DropdownProps> = ({ label, thisServer, otherServer, sho
             className="h-5" />
         </button>
       </div>
-      <ServerPresetsComponent presetValue={presetValue} updateServer={updateComponent} />
+      <ServerPresetsComponent {...{ presetValue, updateComponent, setAdvancedOptions }} />
       <div className={`${showDropdown ? 'opacity-100' : 'opacity-0 pointer-events-none'} relative duration-150`}>
         <select
           className="block appearance-none text-base w-full bg-gray-100 border-2 border-gray-400 py-1 px-2 pr-8 rounded focus:outline-none focus:bg-white focus:border-gray-500"
@@ -194,7 +225,7 @@ const Dropdown: React.FC<DropdownProps> = ({ label, thisServer, otherServer, sho
         </div>
       </div>
       <div 
-        className={`${showAdvanced ? 'h-64' : 'h-0 pointer-events-none' } overflow-hidden duration-300 justify-center ease-in-out flex flex-col gap-2 px-2`}>
+        className={`${showAdvanced ? 'h-28' : 'h-0 pointer-events-none' } overflow-hidden duration-300 justify-center ease-in-out flex flex-col gap-2 px-2`}>
         <ValueSelection
           label="RAM(GB):"
           currentState={thisServer.ram}
@@ -210,10 +241,6 @@ const Dropdown: React.FC<DropdownProps> = ({ label, thisServer, otherServer, sho
           currentState={thisServer.hdd}
           setState={(val) => updateComponent({ hdd: val })}
         />
-        <p>Mainboard:</p>
-        <p>GPU:</p>
-        <p>Network Card:</p>
-        <p>PSU:</p>
       </div>
       <div className="flex gap-4 mt-0">
         <div className="h-28">

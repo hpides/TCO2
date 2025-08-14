@@ -4,23 +4,24 @@ import { ServerType } from '../utility/BenchmarkContext';
 import { CUSTOM } from './Compare';
 
 type ServerPresetsComponentProps = {
-  updateServer: (update: Partial<ServerType>, preset: string) => void;
-  presetValue: keyof ServerPresets | typeof CUSTOM
+  updateComponent: (update: Partial<ServerType>, preset: string) => void;
+  presetValue: keyof ServerPresets | typeof CUSTOM;
+  setAdvancedOptions: (value: null | 'Mirror' | 'Scale') => void;
 };
 
-const ServerPresetsComponent = ({ presetValue, updateServer }: ServerPresetsComponentProps) => {
-  const [showPopup, setShowPopup] = useState(false);
+const ServerPresetsComponent = ({ presetValue, updateComponent, setAdvancedOptions }: ServerPresetsComponentProps) => {
+  const [showPresetMenu, setShowPresetMenu] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
 
   // Close popup if clicked outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
-        setShowPopup(false);
+        setShowPresetMenu(false);
       }
     };
 
-    if (showPopup) {
+    if (showPresetMenu) {
       document.addEventListener('mousedown', handleClickOutside);
     } else {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -30,11 +31,10 @@ const ServerPresetsComponent = ({ presetValue, updateServer }: ServerPresetsComp
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showPopup]);
+  }, [showPresetMenu]);
 
   const handleSelectPreset = (key: keyof ServerPresets) => {
-    console.log('Selected preset:', key);
-    console.log(SERVER_PRESETS[key]);
+    setAdvancedOptions(null);
     const preset = SERVER_PRESETS[key];
 
     const config: Partial<ServerType> = {
@@ -43,31 +43,31 @@ const ServerPresetsComponent = ({ presetValue, updateServer }: ServerPresetsComp
       ssd: preset.ssd,
       hdd: preset.hdd,
     };
-    updateServer(config, key as string);
-    setShowPopup(false);
+    updateComponent(config, key as string);
+    setShowPresetMenu(false);
   };
 
   return (
     <div className="relative">
       {/* Trigger */}
       <div
-        onClick={() => setShowPopup(!showPopup)}
+        onClick={() => setShowPresetMenu(!showPresetMenu)}
         draggable="false"
-        className="cursor-pointer -mt-2 text-gray-500"
+        className="cursor-pointer -mt-2"
       >
-        Preset: {presetValue} {showPopup ? '▼' : '▶'}
+        Server Configuration: {presetValue} {showPresetMenu ? '▼' : '▶'}
       </div>
 
-      {/* Popup */}
-      {showPopup && (
+      {/* PresetMenu */}
+      {showPresetMenu && (
         <div
           ref={popupRef}
-          className="absolute left-0 mt-2 ml-3 w-72 bg-white border rounded shadow-lg z-50 p-3">
+          className="absolute left-0 mt-2 ml-3 w-80 bg-white border rounded shadow-lg z-50 p-3">
           {/* Close button */}
           <div className="flex justify-between items-center mb-2">
             <p className="font-semibold">Select a Preset</p>
             <button
-              onClick={() => setShowPopup(false)}
+              onClick={() => setShowPresetMenu(false)}
               className="text-gray-500 hover:text-red-400 text-sm cursor-pointer"
             >
               ✕
@@ -82,7 +82,7 @@ const ServerPresetsComponent = ({ presetValue, updateServer }: ServerPresetsComp
                 className={`cursor-pointer p-2 hover:bg-gray-100 rounded ${key === presetValue ? 'bg-gray-200' : ''}`}
               >
                 <p className="font-medium">
-                  {preset.instance} | {key}
+                  {preset.instance} | {preset.specific_name} | ${preset.price}/hr
                 </p>
                 <div className="text-sm text-gray-600 ml-2">
                   <p>{CPU_DATA[preset.cpu].LAUNCH_YEAR} {preset.cpu}</p>
