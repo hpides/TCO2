@@ -77,6 +77,11 @@ SCALED_HIGH_UTILIZATION_CORES = {
     r"\monepro": 10,
     r"\raspi": 4,
 }
+CAPTION_CONTEXT = (
+    r"Carbon comparison of the selected systems over 6 years in Germany "
+    r"(30\% cloud utilization; 10\% local utilization; 40\% local-utilization "
+    r"base when adding a DBMS to the local machine)."
+)
 
 
 def build_system(
@@ -276,12 +281,14 @@ def print_diff_table(
     print(r"\multirow{2}{*}{\shortstack[l]{System\\Name}} & \multicolumn{3}{c}{Carbon (kg CO$_2$e)} \\")
     print(r" & \multicolumn{1}{c}{Embod.} & \multicolumn{1}{c}{Operat.} & \multicolumn{1}{c}{Saved} \\")
     print(r"\midrule")
-    for name, embodied_value, operational_value, savings_value in rows:
+    for idx, (name, embodied_value, operational_value, savings_value) in enumerate(rows):
         bold_savings = f"\\textbf{{{savings_value}}}"
         print(
             f"{name} & {embodied_value} & {fmt(operational_value)} & "
             f"{bold_savings} \\\\"
         )
+        if idx == 0:
+            print(r"\midrule")
     print(r"\bottomrule")
     print(r"\end{tabular}")
     print(rf"\caption{{{caption}}}")
@@ -302,12 +309,14 @@ def print_utilization_table(
     print(r"\multirow{2}{*}{\shortstack[l]{System\\Name}} & \multicolumn{1}{c}{Util.} & \multicolumn{4}{c}{Carbon (kg CO$_2$e)} \\")
     print(r" & \multicolumn{1}{c}{(\%)} & \multicolumn{1}{c}{Embod.} & \multicolumn{1}{c}{Operat.} & \multicolumn{1}{c}{Total} & \multicolumn{1}{c}{Savings} \\")
     print(r"\midrule")
-    for name, utilization, embodied_value, operational_value, total_value, savings_value in rows:
+    for idx, (name, utilization, embodied_value, operational_value, total_value, savings_value) in enumerate(rows):
         bold_savings = f"\\textbf{{{fmt(savings_value)}}}"
         print(
             f"{name} & {utilization} & {embodied_value} & "
             f"{fmt(operational_value)} & {fmt(total_value)} & {bold_savings} \\\\"
         )
+        if idx == 0:
+            print(r"\midrule")
     print(r"\bottomrule")
     print(r"\end{tabular}")
     print(rf"\caption{{{caption}}}")
@@ -318,19 +327,19 @@ def print_utilization_table(
 def main() -> None:
     print_utilization_table(
         utilization_rows(LOCAL_LOW_UTILIZATION),
-        r"Advanced carbon comparison with non-cloud systems at 10\% utilization.",
+        rf"10\% local-utilization scenario. {CAPTION_CONTEXT}",
         "tab:advanced-single-estimates-carbon-10pct",
     )
     print()
     print_utilization_table(
         utilization_rows(LOCAL_HIGH_UTILIZATION),
-        r"Advanced carbon comparison with the high-utilization scenario for non-cloud systems.",
+        rf"DBMS-added local-utilization scenario. {CAPTION_CONTEXT}",
         "tab:advanced-single-estimates-carbon-40pct",
     )
     print()
     print_diff_table(
         diff_rows(),
-        r"Advanced carbon comparison using the high-minus-10\% utilization delta for non-cloud systems.",
+        rf"High-minus-10\% local-utilization delta. {CAPTION_CONTEXT}",
         "tab:advanced-single-estimates-carbon-diff",
     )
 
