@@ -8,8 +8,11 @@ Semantics:
   1. Non-cloud rows at 10% utilization.
   2. Non-cloud rows at the high-utilization scenario.
   3. A high-minus-10% diff table.
-- The high-utilization scenario is 40% by default. Selected systems can scale
-  that high point by CPU cores from the cloud baseline.
+- The high-utilization scenario is 40% by default. Selected systems add the
+  cloud workload to the 10% local baseline, scaled by physical CPU cores
+  (4 physical cores for the cloud instance, rather than its 8 vCPUs).
+- The Raspberry Pi uses a 2:1 core-mapping assumption, doubling only the
+  added DBMS workload: 10% baseline + 2 * 30% = 70% utilization.
 - For the diff table, embodied carbon is shown as 0 with the actual embodied
   estimate in parentheses. Savings uses the same notation: savings with
   embodied counted as 0, followed by savings including actual embodied carbon
@@ -25,8 +28,8 @@ from single_estimates.aws_r6a_2xlarge_carbon_model import (
     DRAM_GB as AWS_DRAM_GB,
     HDD_GB as AWS_HDD_GB,
     PACKAGE_AREA_CM2 as AWS_PACKAGE_AREA_CM2,
+    PHYSICAL_CORES_USED as AWS_PHYSICAL_CORES_USED,
     SSD_GB as AWS_SSD_GB,
-    VCPUS as AWS_VCPUS,
 )
 from single_estimates.lenovo_thinkstation_p620_carbon_model import (
     CPU_TDP_WATTS as LENOVO_CPU_TDP_WATTS,
@@ -56,13 +59,6 @@ from single_estimates.raspberry_pi_5_carbon_model import (
     PACKAGE_AREA_CM2 as PI_PACKAGE_AREA_CM2,
     SSD_GB as PI_SSD_GB,
 )
-from single_estimates.zen_5_server_carbon_model import (
-    CPU_TDP_WATTS as ZEN5_CPU_TDP_WATTS,
-    DRAM_GB as ZEN5_DRAM_GB,
-    HDD_GB as ZEN5_HDD_GB,
-    PACKAGE_AREA_CM2 as ZEN5_PACKAGE_AREA_CM2,
-    SSD_GB as ZEN5_SSD_GB,
-)
 
 
 TIME_HORIZON_YEARS = 6
@@ -71,16 +67,17 @@ CLOUD_UTILIZATION = 30
 LOCAL_LOW_UTILIZATION = 10
 LOCAL_HIGH_UTILIZATION = 40
 SCALED_HIGH_UTILIZATION_CORES = {
-    r"\amdzenfive": 192,
     r"\amdzentwo": 64,
     r"\mfourmax": 16,
     r"\monepro": 10,
     r"\raspi": 4,
 }
+DBMS_WORKLOAD_MULTIPLIERS = {r"\raspi": 2}
 CAPTION_CONTEXT = (
     r"Carbon comparison of the selected systems over 6 years in Germany "
-    r"(30\% cloud utilization; 10\% local utilization; 40\% local-utilization "
-    r"base when adding a DBMS to the local machine)."
+    r"(30\% cloud utilization on 4 physical cores; 10\% local utilization "
+    r"plus a DBMS workload scaled by the local physical-core count; "
+    r"the Raspberry Pi doubles only the added DBMS workload under a 2:1 core mapping)."
 )
 
 
@@ -114,7 +111,8 @@ def high_utilization(name: str) -> float:
     cpu_cores = SCALED_HIGH_UTILIZATION_CORES.get(name)
     if cpu_cores is None:
         return LOCAL_HIGH_UTILIZATION
-    return LOCAL_LOW_UTILIZATION + CLOUD_UTILIZATION * AWS_VCPUS / cpu_cores
+    added_utilization = CLOUD_UTILIZATION * AWS_PHYSICAL_CORES_USED / cpu_cores
+    return LOCAL_LOW_UTILIZATION + added_utilization * DBMS_WORKLOAD_MULTIPLIERS.get(name, 1)
 
 
 def incremental_operational(name: str, system: System) -> float:
@@ -132,7 +130,7 @@ def rounded(value: float) -> int:
 
 
 def fmt_utilization(value: float) -> str:
-    return f"{value:.2f}".rstrip("0").rstrip(".")
+    return f"{value:.0f}"
 
 
 def cloud_row() -> tuple[str, str, float, float, float]:
@@ -152,33 +150,13 @@ def cloud_row() -> tuple[str, str, float, float, float]:
 def local_systems() -> list[tuple[str, System]]:
     return [
         (
-            r"\amdzenfive",
+            r"\raspi",
             build_system(
-                da_cm2=ZEN5_PACKAGE_AREA_CM2,
-                dram_gb=ZEN5_DRAM_GB,
-                ssd_gb=ZEN5_SSD_GB,
-                hdd_gb=ZEN5_HDD_GB,
-                cpu_tdp_watts=ZEN5_CPU_TDP_WATTS,
-            ),
-        ),
-        (
-            r"\amdzentwo",
-            build_system(
-                da_cm2=LENOVO_DIE_AREA_CM2,
-                dram_gb=LENOVO_DRAM_GB,
-                ssd_gb=LENOVO_SSD_GB,
-                hdd_gb=LENOVO_HDD_GB,
-                cpu_tdp_watts=LENOVO_CPU_TDP_WATTS,
-            ),
-        ),
-        (
-            r"\mfourmax",
-            build_system(
-                da_cm2=M4_PACKAGE_AREA_CM2,
-                dram_gb=M4_DRAM_GB,
-                ssd_gb=M4_SSD_GB,
-                hdd_gb=M4_HDD_GB,
-                cpu_tdp_watts=M4_CPU_TDP_WATTS,
+                da_cm2=PI_PACKAGE_AREA_CM2,
+                dram_gb=PI_DRAM_GB,
+                ssd_gb=PI_SSD_GB,
+                hdd_gb=PI_HDD_GB,
+                cpu_tdp_watts=PI_CPU_TDP_WATTS,
             ),
         ),
         (
@@ -192,13 +170,23 @@ def local_systems() -> list[tuple[str, System]]:
             ),
         ),
         (
-            r"\raspi",
+            r"\mfourmax",
             build_system(
-                da_cm2=PI_PACKAGE_AREA_CM2,
-                dram_gb=PI_DRAM_GB,
-                ssd_gb=PI_SSD_GB,
-                hdd_gb=PI_HDD_GB,
-                cpu_tdp_watts=PI_CPU_TDP_WATTS,
+                da_cm2=M4_PACKAGE_AREA_CM2,
+                dram_gb=M4_DRAM_GB,
+                ssd_gb=M4_SSD_GB,
+                hdd_gb=M4_HDD_GB,
+                cpu_tdp_watts=M4_CPU_TDP_WATTS,
+            ),
+        ),
+        (
+            r"\amdzentwo",
+            build_system(
+                da_cm2=LENOVO_DIE_AREA_CM2,
+                dram_gb=LENOVO_DRAM_GB,
+                ssd_gb=LENOVO_SSD_GB,
+                hdd_gb=LENOVO_HDD_GB,
+                cpu_tdp_watts=LENOVO_CPU_TDP_WATTS,
             ),
         ),
     ]
@@ -237,12 +225,13 @@ def utilization_rows(utilization: float) -> list[tuple[str, str, str, float, flo
     return rows
 
 
-def diff_rows() -> list[tuple[str, str, float, str]]:
+def diff_rows() -> list[tuple[str, str, str, float, str]]:
     baseline = cloud_row()
     baseline_total = rounded(baseline[3])
     rows = [
         (
             baseline[0],
+            fmt_utilization(CLOUD_UTILIZATION),
             baseline[1],
             baseline[2],
             "0 (0)",
@@ -259,6 +248,7 @@ def diff_rows() -> list[tuple[str, str, float, str]]:
         rows.append(
             (
                 name,
+                fmt_utilization(high_utilization(name)),
                 rf"0 ({fmt(capex)})",
                 opex_delta,
                 rf"{fmt(savings_counting_embodied_zero)} ({fmt(savings_counting_actual_embodied)})",
@@ -269,22 +259,22 @@ def diff_rows() -> list[tuple[str, str, float, str]]:
 
 
 def print_diff_table(
-    rows: list[tuple[str, str, float, str]],
+    rows: list[tuple[str, str, str, float, str]],
     caption: str,
     label: str,
 ) -> None:
     print(r"\begin{table}[t]")
     print(r"\centering")
     print(r"\small")
-    print(r"\begin{tabular}{lrrr}")
+    print(r"\begin{tabular}{lrrrr}")
     print(r"\toprule")
-    print(r"\multirow{2}{*}{\shortstack[l]{System\\Name}} & \multicolumn{3}{c}{Carbon (kg CO$_2$e)} \\")
-    print(r" & \multicolumn{1}{c}{Embod.} & \multicolumn{1}{c}{Operat.} & \multicolumn{1}{c}{Saved} \\")
+    print(r"\multirow{2}{*}{\shortstack[l]{System\\Name}} & \multicolumn{1}{c}{Util.} & \multicolumn{3}{c}{Carbon (kg CO$_2$e)} \\")
+    print(r" & \multicolumn{1}{c}{(\%)} & \multicolumn{1}{c}{Embod.} & \multicolumn{1}{c}{Operat.} & \multicolumn{1}{c}{Saved} \\")
     print(r"\midrule")
-    for idx, (name, embodied_value, operational_value, savings_value) in enumerate(rows):
+    for idx, (name, utilization, embodied_value, operational_value, savings_value) in enumerate(rows):
         bold_savings = f"\\textbf{{{savings_value}}}"
         print(
-            f"{name} & {embodied_value} & {fmt(operational_value)} & "
+            f"{name} & {utilization} & {embodied_value} & {fmt(operational_value)} & "
             f"{bold_savings} \\\\"
         )
         if idx == 0:
@@ -339,7 +329,7 @@ def main() -> None:
     print()
     print_diff_table(
         diff_rows(),
-        rf"High-minus-10\% local-utilization delta. {CAPTION_CONTEXT}",
+        rf"High-minus-10\% local-utilization delta. Utilization shows the cloud baseline or the local DBMS-added level. {CAPTION_CONTEXT}",
         "tab:advanced-single-estimates-carbon-diff",
     )
 
