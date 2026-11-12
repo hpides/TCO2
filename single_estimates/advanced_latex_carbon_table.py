@@ -4,10 +4,9 @@ Print advanced LaTeX carbon tables for the single-estimate scenarios.
 
 Semantics:
 - The cloud baseline is the AWS r6a.2xlarge instance at 30% utilization.
-- The script prints three tables:
-  1. Non-cloud rows at 10% utilization.
-  2. Non-cloud rows at the high-utilization scenario.
-  3. A high-minus-10% diff table.
+- The script prints two tables:
+  1. Base, total, and additional DBMS utilization.
+  2. A high-minus-10% carbon diff table with additional DBMS utilization.
 - The high-utilization scenario is 40% by default. Selected systems add the
   cloud workload to the 10% local baseline, scaled by physical CPU cores
   (4 physical cores for the cloud instance, rather than its 8 vCPUs).
@@ -192,33 +191,24 @@ def local_systems() -> list[tuple[str, System]]:
     ]
 
 
-def utilization_rows(utilization: float) -> list[tuple[str, str, str, float, float, float]]:
-    baseline = cloud_row()
-    baseline_total = rounded(baseline[3])
+def utilization_rows() -> list[tuple[str, str, str, str]]:
     rows = [
         (
-            baseline[0],
+            "r6a.2xlarge",
+            fmt_utilization(0),
             fmt_utilization(CLOUD_UTILIZATION),
-            baseline[1],
-            baseline[2],
-            baseline[3],
-            baseline[4],
+            fmt_utilization(CLOUD_UTILIZATION),
         )
     ]
 
-    for name, system in local_systems():
-        capex = embodied(system)
-        row_utilization = high_utilization(name) if utilization == LOCAL_HIGH_UTILIZATION else utilization
-        opex = operational(system, row_utilization)
-        total = rounded(capex) + rounded(opex)
+    for name, _ in local_systems():
+        total_utilization = high_utilization(name)
         rows.append(
             (
                 name,
-                fmt_utilization(row_utilization),
-                fmt(capex),
-                opex,
-                total,
-                baseline_total - total,
+                fmt_utilization(LOCAL_LOW_UTILIZATION),
+                fmt_utilization(total_utilization),
+                fmt_utilization(total_utilization - LOCAL_LOW_UTILIZATION),
             )
         )
 
@@ -248,7 +238,7 @@ def diff_rows() -> list[tuple[str, str, str, float, str]]:
         rows.append(
             (
                 name,
-                fmt_utilization(high_utilization(name)),
+                fmt_utilization(high_utilization(name) - LOCAL_LOW_UTILIZATION),
                 rf"0 ({fmt(capex)})",
                 opex_delta,
                 rf"{fmt(savings_counting_embodied_zero)} ({fmt(savings_counting_actual_embodied)})",
@@ -265,11 +255,13 @@ def print_diff_table(
 ) -> None:
     print(r"\begin{table}[t]")
     print(r"\centering")
+    print(rf"\caption{{{caption}}}")
+    print(rf"\label{{{label}}}")
     print(r"\small")
     print(r"\begin{tabular}{lrrrr}")
     print(r"\toprule")
-    print(r"\multirow{2}{*}{\shortstack[l]{System\\Name}} & \multicolumn{1}{c}{Util.} & \multicolumn{3}{c}{Carbon (kg CO$_2$e)} \\")
-    print(r" & \multicolumn{1}{c}{(\%)} & \multicolumn{1}{c}{Embod.} & \multicolumn{1}{c}{Operat.} & \multicolumn{1}{c}{Saved} \\")
+    print(r"\multirow{2}{*}{\shortstack[l]{System\\Name}} & \multicolumn{1}{c}{Additional util.} & \multicolumn{3}{c}{Carbon (kg CO$_2$e)} \\")
+    print(r" & \multicolumn{1}{c}{(p.p.)} & \multicolumn{1}{c}{Embod.} & \multicolumn{1}{c}{Operat.} & \multicolumn{1}{c}{Saved} \\")
     print(r"\midrule")
     for idx, (name, utilization, embodied_value, operational_value, savings_value) in enumerate(rows):
         bold_savings = f"\\textbf{{{savings_value}}}"
@@ -281,55 +273,46 @@ def print_diff_table(
             print(r"\midrule")
     print(r"\bottomrule")
     print(r"\end{tabular}")
-    print(rf"\caption{{{caption}}}")
-    print(rf"\label{{{label}}}")
     print(r"\end{table}")
 
 
 def print_utilization_table(
-    rows: list[tuple[str, str, str, float, float, float]],
+    rows: list[tuple[str, str, str, str]],
     caption: str,
     label: str,
 ) -> None:
     print(r"\begin{table}[t]")
     print(r"\centering")
+    print(rf"\caption{{{caption}}}")
+    print(rf"\label{{{label}}}")
     print(r"\small")
-    print(r"\begin{tabular}{lrrrrr}")
+    print(r"\begin{tabular}{lrrr}")
     print(r"\toprule")
-    print(r"\multirow{2}{*}{\shortstack[l]{System\\Name}} & \multicolumn{1}{c}{Util.} & \multicolumn{4}{c}{Carbon (kg CO$_2$e)} \\")
-    print(r" & \multicolumn{1}{c}{(\%)} & \multicolumn{1}{c}{Embod.} & \multicolumn{1}{c}{Operat.} & \multicolumn{1}{c}{Total} & \multicolumn{1}{c}{Savings} \\")
+    print(r"System & \multicolumn{1}{c}{Base util. (\%)} & \multicolumn{1}{c}{Additional util. (p.p.)} & \multicolumn{1}{c}{Total util. (\%)} \\")
     print(r"\midrule")
-    for idx, (name, utilization, embodied_value, operational_value, total_value, savings_value) in enumerate(rows):
-        bold_savings = f"\\textbf{{{fmt(savings_value)}}}"
+    for idx, (name, base_utilization, total_utilization, added_utilization) in enumerate(rows):
         print(
-            f"{name} & {utilization} & {embodied_value} & "
-            f"{fmt(operational_value)} & {fmt(total_value)} & {bold_savings} \\\\"
+            f"{name} & {base_utilization} & {added_utilization} & {total_utilization} \\\\"
         )
         if idx == 0:
             print(r"\midrule")
     print(r"\bottomrule")
     print(r"\end{tabular}")
-    print(rf"\caption{{{caption}}}")
-    print(rf"\label{{{label}}}")
     print(r"\end{table}")
 
 
 def main() -> None:
     print_utilization_table(
-        utilization_rows(LOCAL_LOW_UTILIZATION),
-        rf"10\% local-utilization scenario. {CAPTION_CONTEXT}",
-        "tab:advanced-single-estimates-carbon-10pct",
-    )
-    print()
-    print_utilization_table(
-        utilization_rows(LOCAL_HIGH_UTILIZATION),
-        rf"DBMS-added local-utilization scenario. {CAPTION_CONTEXT}",
-        "tab:advanced-single-estimates-carbon-40pct",
+        utilization_rows(),
+        r"Base, total, and additional DBMS utilization, rounded to whole numbers. "
+        r"Local totals include a 10\% office baseline; additional utilization is measured "
+        r"in percentage points (p.p.). The dedicated cloud instance has no office baseline.",
+        "tab:advanced-single-estimates-utilization",
     )
     print()
     print_diff_table(
         diff_rows(),
-        rf"High-minus-10\% local-utilization delta. Utilization shows the cloud baseline or the local DBMS-added level. {CAPTION_CONTEXT}",
+        rf"High-minus-10\% local-utilization delta. Additional utilization shows the DBMS workload in percentage points (p.p.). {CAPTION_CONTEXT}",
         "tab:advanced-single-estimates-carbon-diff",
     )
 
